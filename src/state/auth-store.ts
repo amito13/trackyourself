@@ -4,14 +4,14 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
 interface AuthStore {
-  session: Session | null
-  user: User | null
-  isLoading: boolean
-  isInitialized: boolean
+  session: Session | null;
+  user: User | null;
+  isLoading: boolean;
+  isInitialized: boolean;
 
-  initialize: () => () => void
-  handleDeepLink: (url: string) => Promise<void>
-  signOut: () => Promise<void>
+  initialize: () => () => void;
+  handleDeepLink: (url: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   initialize: () => {
     if (get().isInitialized) {
-      return () => { }
+      return () => {};
     }
 
     set({ isInitialized: true });
@@ -31,23 +31,21 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         session,
         user: session?.user ?? null,
-        isLoading: false
-      })
-    }
+        isLoading: false,
+      });
+    });
 
-    )
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      set({
+        session,
+        user: session?.user ?? null,
+        isLoading: false,
+      });
+    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        set({
-          session,
-          user: session?.user ?? null,
-          isLoading: false,
-        })
-      }
-    );
-
-    return () => subscription.unsubscribe()
+    return () => subscription.unsubscribe();
   },
 
   handleDeepLink: async (url) => {
@@ -57,5 +55,5 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signOut: async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-  }
-}))
+  },
+}));

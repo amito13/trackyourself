@@ -1,96 +1,102 @@
-import { supabase } from '@/lib/supabase'
-import type { Provider, Session } from '@supabase/supabase-js'
-import { makeRedirectUri } from 'expo-auth-session'
-import * as QueryParams from 'expo-auth-session/build/QueryParams'
-import * as WebBrowser from 'expo-web-browser'
-
+import { supabase } from '@/lib/supabase';
+import type { Provider, Session } from '@supabase/supabase-js';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as QueryParams from 'expo-auth-session/build/QueryParams';
+import * as WebBrowser from 'expo-web-browser';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const codeExchanges = new Map<string, Promise<Session | undefined>>();
 
 export function getAuthRedirectUri() {
-    return makeRedirectUri({ scheme: 'trackyourself', path: 'auth/callback' })
+  return makeRedirectUri({ scheme: 'trackyourself', path: 'auth/callback' });
 }
 
 export function isAuthCallbackUrl(url: string) {
-    const { params, errorCode } = QueryParams.getQueryParams(url);
-    return !!(errorCode || params.error || params.code || (params.access_token && params.refresh_token))
+  const { params, errorCode } = QueryParams.getQueryParams(url);
+  return !!(
+    errorCode ||
+    params.error ||
+    params.code ||
+    (params.access_token && params.refresh_token)
+  );
 }
 
 export async function createSessionFromUrl(url: string) {
-    const { params, errorCode } = QueryParams.getQueryParams(url)
-    if (errorCode || params.error) {
-        throw new Error(params.error_description || errorCode || params.error)
+  const { params, errorCode } = QueryParams.getQueryParams(url);
+  if (errorCode || params.error) {
+    throw new Error(params.error_description || errorCode || params.error);
+  }
+
+  if (params.code) {
+    const existing = codeExchanges.get(params.code);
+    if (existing) return existing;
+
+    const exchange = (async () => {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(params.code);
+      if (error) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) return session;
+        throw error;
+      }
+      return data.session;
+    })();
+
+    codeExchanges.set(params.code, exchange);
+
+    try {
+      return await exchange;
+    } finally {
+      codeExchanges.delete(params.code);
     }
+  }
 
-    if (params.code) {
-        const existing = codeExchanges.get(params.code)
-        if (existing) return existing
-
-        const exchange = (async () => {
-            const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)
-            if (error) {
-                const { data: { session } } = await supabase.auth.getSession()
-                if (session) return session
-                throw error
-            }
-            return data.session
-        })()
-
-        codeExchanges.set(params.code, exchange)
-
-        try {
-            return await exchange
-        } finally {
-            codeExchanges.delete(params.code)
-        }
-    }
-
-    if (params.access_token && params.refresh_token) {
-        const { data, error } = await supabase.auth.setSession({
-            access_token: params.access_token,
-            refresh_token: params.refresh_token,
-        })
-        if (error) throw error
-        return data.session
-    }
+  if (params.access_token && params.refresh_token) {
+    const { data, error } = await supabase.auth.setSession({
+      access_token: params.access_token,
+      refresh_token: params.refresh_token,
+    });
+    if (error) throw error;
+    return data.session;
+  }
 }
 
 export async function SignInWithOAuth(provider: Provider) {
-    const redirectTo = getAuthRedirectUri();
+  const redirectTo = getAuthRedirectUri();
 
-    if (!redirectTo) {
-        throw new Error('Could not determine OAuth redirect URI for this platform.')
-    }
+  if (!redirectTo) {
+    throw new Error('Could not determine OAuth redirect URI for this platform.');
+  }
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-            redirectTo,
-            skipBrowserRedirect: true
-        }
-    });
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+    },
+  });
 
-    if (error) throw error
-    if (!data.url) throw new Error('No OAuth URL returned')
+  if (error) throw error;
+  if (!data.url) throw new Error('No OAuth URL returned');
 
-    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
-        showInRecents: true
-    });
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
+    showInRecents: true,
+  });
 
-    if (result.type === 'success') {
-        return createSessionFromUrl(result.url)
-    }
+  if (result.type === 'success') {
+    return createSessionFromUrl(result.url);
+  }
 
-    if (result.type === 'cancel' || result.type === 'dismiss') {
-        return
-    }
+  if (result.type === 'cancel' || result.type === 'dismiss') {
+    return;
+  }
 
-    throw new Error('Could not open the sign-in browser. Please try again.')
+  throw new Error('Could not open the sign-in browser. Please try again.');
 }
 
 export async function signOut() {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
 }

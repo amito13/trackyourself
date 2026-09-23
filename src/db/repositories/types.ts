@@ -70,9 +70,15 @@ export interface SetInput {
   reps: number | null;
   durationSeconds: number | null;
 }
-export type MutableTable = 'users' | 'workout_plans' | 'workout_days'
-  | 'workout_day_body_parts' | 'workout_day_exercises' | 'workout_sessions'
-  | 'session_exercises' | 'exercise_sets';
+export type MutableTable =
+  | 'users'
+  | 'workout_plans'
+  | 'workout_days'
+  | 'workout_day_body_parts'
+  | 'workout_day_exercises'
+  | 'workout_sessions'
+  | 'session_exercises'
+  | 'exercise_sets';
 export interface PendingChange {
   sequence: number;
   table_name: MutableTable;

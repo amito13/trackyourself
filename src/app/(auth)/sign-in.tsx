@@ -1,375 +1,124 @@
-import { AntDesign, Feather } from '@expo/vector-icons'
-import * as WebBrowser from 'expo-web-browser'
-import { useEffect, useState } from 'react'
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-
-import { SignInWithOAuth } from '@/lib/auth'
-
-type Provider = 'github' | 'google'
-
-const LIME = '#bdf06e'
-const PEACH = '#fdba74'
-const BACKGROUND = '#0a0a0c'
-const FOREGROUND = '#fafafa'
-const MUTED = '#9e9ea7'
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Badge, Brand, Button, Card, Icon, Notice, Screen } from '@/components/ui';
+import { colors, ui } from '@/constants/theme';
+import { SignInWithOAuth } from '@/lib/auth';
+import { errorMessage } from '@/utils/display';
 
 export default function SignInScreen() {
-  const [loading, setLoading] = useState<Provider | null>(null)
-
-  useEffect(() => {
-    void WebBrowser.warmUpAsync()
-    return () => {
-      void WebBrowser.coolDownAsync()
-    }
-  }, [])
-
-  async function handleSignIn(provider: Provider) {
-    if (loading) return
-    setLoading(provider)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function signIn() {
+    setLoading(true);
+    setError(null);
     try {
-      await SignInWithOAuth(provider)
-    } catch (err) {
-      Alert.alert(
-        'Sign in failed',
-        err instanceof Error ? err.message : 'Unknown error'
-      )
+      await SignInWithOAuth('google');
+    } catch (error) {
+      setError(errorMessage(error));
     } finally {
-      setLoading(null)
+      setLoading(false);
     }
   }
-
   return (
-    <View style={styles.screen}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.header}>
-            <View style={styles.logoBox}>
-              <Image
-                source={require('../../../assets/images/logo.png')}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.version}>v1.0</Text>
+    <Screen
+      footer={
+        <>
+          <Button
+            title="Continue with Google"
+            onPress={() => void signIn()}
+            loading={loading}
+          />
+          <View style={[ui.row, { justifyContent: 'center' }]}>
+            <AntDesign name="google" color={colors.muted} size={14} />
+            <Text style={ui.small}>Your account. Your training. Your progress.</Text>
           </View>
-
-          <View style={styles.hero}>
-            <View style={styles.badge}>
-              <View style={styles.badgeDot} />
-              <Text style={styles.badgeText}>Solve smarter</Text>
-            </View>
-
-            <Text style={styles.title}>Welcome to</Text>
-            <Text style={styles.titleAccent}>MobLeet.</Text>
-
-            <Text style={styles.subtitle}>
-              Practice anywhere - track your{' '}
-              <Text style={styles.subtitleHighlight}>streak</Text>, revisit
-              solutions, and stay consistent.
-            </Text>
-          </View>
-
-          <View style={styles.features}>
-            <FeatureRow
-              icon="zap"
-              color={LIME}
-              title="Daily practice"
-              subtitle="Quick problems that fit your day"
-            />
-            <FeatureRow
-              icon="map-pin"
-              color={PEACH}
-              title="Track progress"
-              subtitle="Streaks, topics, and solved history"
-            />
-            <FeatureRow
-              icon="shield"
-              color="#a5f3fc"
-              title="Private & secure"
-              subtitle="Supabase Auth · secure sessions"
-            />
-          </View>
-
-          <View style={styles.actions}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.githubButton,
-                pressed && styles.buttonPressed,
-                loading !== null && styles.buttonDisabled,
-              ]}
-              disabled={loading !== null}
-              onPress={() => handleSignIn('github')}
-            >
-              {loading === 'github' ? (
-                <ActivityIndicator color={BACKGROUND} />
-              ) : (
-                <>
-                  <AntDesign name="github" size={18} color={BACKGROUND} />
-                  <Text style={styles.githubButtonLabel}>
-                    Continue with GitHub
-                  </Text>
-                </>
-              )}
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.googleButton,
-                pressed && styles.buttonPressed,
-                loading !== null && styles.buttonDisabled,
-              ]}
-              disabled={loading !== null}
-              onPress={() => handleSignIn('google')}
-            >
-              {loading === 'google' ? (
-                <ActivityIndicator color={FOREGROUND} />
-              ) : (
-                <>
-                  <AntDesign name="google" size={18} color={FOREGROUND} />
-                  <Text style={styles.googleButtonLabel}>
-                    Continue with Google
-                  </Text>
-                </>
-              )}
-            </Pressable>
-          </View>
-
-          <Text style={styles.legal}>
-            By continuing you agree to MobLeet&apos;s{' '}
-            <Text
-              style={styles.legalLink}
-              onPress={() => Linking.openURL('https://example.com/terms')}
-            >
-              Terms
-            </Text>{' '}
-            and{' '}
-            <Text
-              style={styles.legalLink}
-              onPress={() => Linking.openURL('https://example.com/privacy')}
-            >
-              Privacy Policy
-            </Text>
-            .
-          </Text>
-        </ScrollView>
-      </SafeAreaView>
-    </View>
-  )
-}
-
-function FeatureRow({
-  icon,
-  color,
-  title,
-  subtitle,
-}: {
-  icon: keyof typeof Feather.glyphMap
-  color: string
-  title: string
-  subtitle: string
-}) {
-  return (
-    <View style={styles.featureRow}>
+        </>
+      }
+    >
+      <Brand />
+      <View style={{ marginTop: 20, gap: 16 }}>
+        <Badge>ONE MORE REP. A LITTLE STRONGER.</Badge>
+        <Text style={styles.hero}>
+          Your last lift.{'\n'}Your next
+          <Text style={{ color: colors.accent }}> best.</Text>
+        </Text>
+        <Text style={[ui.muted, { fontSize: 16, lineHeight: 25 }]}>
+          Walk in with a plan. Remember every set.{'\n'}Make today count.
+        </Text>
+      </View>
       <View
-        style={[styles.featureIconBox, { backgroundColor: `${color}24` }]}
+        style={styles.art}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
       >
-        <Feather name={icon} size={18} color={color} />
+        <View style={styles.ring} />
+        <View
+          style={[styles.ring, { width: 140, height: 140, borderColor: '#5B3C2B' }]}
+        />
+        <MaterialCommunityIcons
+          name="dumbbell"
+          size={110}
+          color={colors.accent}
+          style={{ transform: [{ rotate: '-28deg' }] }}
+        />
+        <View style={styles.artCaption}>
+          <Icon name="arrow-up-right" color={colors.accent} size={16} />
+          <Text style={[ui.label, { color: colors.accent }]}>BUILT SET BY SET</Text>
+        </View>
       </View>
-      <View style={styles.featureCopy}>
-        <Text style={styles.featureTitle}>{title}</Text>
-        <Text style={styles.featureSubtitle}>{subtitle}</Text>
-      </View>
-    </View>
-  )
+      <Card>
+        <View style={ui.row}>
+          <Icon name="repeat" color={colors.accent} />
+          <View style={ui.flex}>
+            <Text style={[ui.body, { fontWeight: '700' }]}>
+              Pick up where you left off
+            </Text>
+            <Text style={ui.small}>Last time beside every set you log today.</Text>
+          </View>
+        </View>
+        <View style={ui.rule} />
+        <View style={ui.row}>
+          <Icon name="wifi-off" color={colors.accent} />
+          <View style={ui.flex}>
+            <Text style={[ui.body, { fontWeight: '700' }]}>Keep training offline</Text>
+            <Text style={ui.small}>Your workout stays with you, signal or not.</Text>
+          </View>
+        </View>
+      </Card>
+      {error && <Notice error message={error} />}
+    </Screen>
+  );
 }
-
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: BACKGROUND,
+  hero: {
+    color: colors.text,
+    fontSize: 46,
+    lineHeight: 52,
+    fontWeight: '900',
+    letterSpacing: -1.8,
   },
-  safeArea: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  logoBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 16,
+  art: {
+    height: 205,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: 'rgba(189, 240, 110, 0.14)',
+    backgroundColor: '#181716',
+    borderRadius: 24,
+  },
+  ring: {
+    width: 240,
+    height: 240,
     borderWidth: 1,
-    borderColor: 'rgba(189, 240, 110, 0.32)',
+    borderColor: '#36312B',
+    borderRadius: 150,
+    position: 'absolute',
   },
-  logoImage: {
-    width: 28,
-    height: 28,
-  },
-  version: {
-    color: MUTED,
-    fontSize: 12,
-    letterSpacing: 1.4,
-  },
-  hero: {
-    marginTop: 40,
-  },
-  badge: {
-    alignSelf: 'flex-start',
+  artCaption: {
+    position: 'absolute',
+    bottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
-    marginBottom: 16,
-    backgroundColor: 'rgba(189, 240, 110, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(189, 240, 110, 0.28)',
+    gap: 6,
   },
-  badgeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: LIME,
-    marginRight: 8,
-  },
-  badgeText: {
-    color: LIME,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  title: {
-    color: FOREGROUND,
-    fontSize: 36,
-    lineHeight: 42,
-    fontWeight: '700',
-  },
-  titleAccent: {
-    color: LIME,
-    fontSize: 36,
-    lineHeight: 42,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: MUTED,
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 12,
-  },
-  subtitleHighlight: {
-    color: PEACH,
-  },
-  features: {
-    marginTop: 32,
-    gap: 10,
-  },
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 16,
-    padding: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
-  },
-  featureIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featureCopy: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  featureTitle: {
-    color: FOREGROUND,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  featureSubtitle: {
-    color: MUTED,
-    fontSize: 12,
-  },
-  actions: {
-    marginTop: 32,
-    gap: 12,
-  },
-  githubButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    minHeight: 52,
-    borderRadius: 16,
-    backgroundColor: LIME,
-    paddingHorizontal: 20,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    minHeight: 52,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    paddingHorizontal: 20,
-  },
-  buttonPressed: {
-    opacity: 0.88,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  githubButtonLabel: {
-    color: BACKGROUND,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  googleButtonLabel: {
-    color: FOREGROUND,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  legal: {
-    color: MUTED,
-    fontSize: 12,
-    lineHeight: 18,
-    textAlign: 'center',
-    marginTop: 24,
-  },
-  legalLink: {
-    color: PEACH,
-    textDecorationLine: 'underline',
-  },
-})
+});

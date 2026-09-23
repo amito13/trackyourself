@@ -1,45 +1,41 @@
-import { useAuthStore } from '@/state/auth-store'
-import * as Linking from 'expo-linking'
-import { useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, Text, View } from 'react-native'
-
+import { useAuthStore } from '@/state/auth-store';
+import * as Linking from 'expo-linking';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Text } from 'react-native';
+import { Brand, Button, Loading, Notice, Screen } from '@/components/ui';
+import { ui } from '@/constants/theme';
+import { errorMessage } from '@/utils/display';
 export default function AuthCallbackScreen() {
-  const router = useRouter()
-  const handleDeepLink = useAuthStore((s) => s.handleDeepLink)
-  const url = Linking.useLinkingURL()
-  const [error, setError] = useState<string | null>(null)
-
+  const handleDeepLink = useAuthStore((s) => s.handleDeepLink);
+  const url = Linking.useLinkingURL();
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    if (!url) return
-
-    async function finishAuth() {
-      try {
-        await handleDeepLink(url!)
-        router.replace('/' as never)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Sign-in failed.')
-      }
-    }
-
-    void finishAuth()
-  }, [handleDeepLink, router, url])
-
+    if (!url) return;
+    let active = true;
+    void handleDeepLink(url)
+      .then(() => {
+        if (active) router.replace('/');
+      })
+      .catch((error) => {
+        if (active) setError(errorMessage(error));
+      });
+    return () => {
+      active = false;
+    };
+  }, [handleDeepLink, url]);
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 12,
-        backgroundColor: '#0a0a0c',
-      }}
-    >
-      {!error ? (
-        <ActivityIndicator color="#bdf06e" />
+    <Screen>
+      <Brand />
+      <Text style={ui.title}>Getting you{'\n'}back to training.</Text>
+      {error ? (
+        <>
+          <Notice error message={error} />
+          <Button title="Back to sign in" onPress={() => router.replace('/')} />
+        </>
       ) : (
-        <Text style={{ color: '#fafafa' }}>{error}</Text>
+        <Loading />
       )}
-    </View>
-  )
+    </Screen>
+  );
 }

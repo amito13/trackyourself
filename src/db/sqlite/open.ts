@@ -23,7 +23,7 @@ export function openRepositories(userId: string): Promise<Repositories> {
         await connection.closeAsync();
         throw error;
       }
-    })().catch(error => {
+    })().catch((error) => {
       accounts.delete(normalizedId);
       throw error;
     });
