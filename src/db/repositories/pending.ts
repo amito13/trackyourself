@@ -12,7 +12,7 @@ const TABLES: readonly MutableTable[] = [
   'exercise_sets',
 ];
 
-/** Queue storage only. A future sync engine handles dependencies and completion ordering. */
+/** Revisioned upload queue consumed by the Supabase upload engine. */
 export class PendingRepository {
   constructor(private local: LocalDatabase) {}
 
@@ -56,6 +56,6 @@ export class PendingRepository {
         change.record_id,
       );
       return result.changes === 1;
-    });
+    }, false);
   }
 }

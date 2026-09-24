@@ -13,18 +13,19 @@ import {
 } from '@/components/ui';
 import { colors, ui, weekdays } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
+import { useData } from '@/features/app/data-context';
 import { LocalStatus } from '@/features/app/local-status';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { useAuthStore } from '@/state/auth-store';
 import { errorMessage } from '@/utils/display';
 export default function ProfileScreen() {
+  const { sync, syncNow } = useData();
   const signOut = useAuthStore((s) => s.signOut);
   const { data, error, reload } = useLocalQuery(
     useCallback(
       async (r: Repositories) => ({
         profile: await r.profile.get(),
         plan: await r.plans.get(),
-        pending: await r.pending.list(),
       }),
       [],
     ),
@@ -102,11 +103,11 @@ export default function ProfileScreen() {
           <Card>
             <LocalStatus />
             <Text style={ui.small}>
-              {data.pending.length
-                ? 'Your latest changes are saved locally. Cloud synchronization is not available in this build yet.'
-                : 'Your training data is available on this device.'}
+              {sync.pending} changes waiting to upload. Your data is saved on this device first.
             </Text>
           </Card>
+          {sync.error && <Notice error message={sync.error} onRetry={syncNow} />}
+          <Button title="Sync now" icon="upload-cloud" secondary loading={sync.status === 'syncing'} onPress={syncNow} />
           {signOutError && <Notice error message={signOutError} />}
           <Button
             title="Log out"

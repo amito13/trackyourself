@@ -10,6 +10,7 @@ import { WorkoutRepository } from './workouts';
 export function createRepositories(database: LocalDatabase, runtime: RepositoryRuntime) {
   return {
     userId: database.userId,
+    subscribe: database.subscribe,
     profile: new ProfileRepository(database, runtime),
     exercises: new ExerciseRepository(database),
     plans: new PlanRepository(database, runtime),

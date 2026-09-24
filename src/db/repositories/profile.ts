@@ -26,6 +26,7 @@ export class ProfileRepository {
         identity.email,
         identity.avatarUrl,
       );
+      await markPending(db, 'users', this.local.userId);
     });
   }
 

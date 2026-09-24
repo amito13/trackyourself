@@ -10,6 +10,12 @@ export interface SqlConnection {
 
 /** All reads and writes share this queue; no query can leak into another transaction. */
 export class LocalDatabase {
+  private listeners = new Set<() => void>();
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  };
+
   private tail: Promise<unknown> = Promise.resolve();
   constructor(
     private readonly connection: SqlConnection,
@@ -26,12 +32,15 @@ export class LocalDatabase {
     return this.enqueue(() => task(this.connection));
   }
 
-  write<T>(task: (db: SqlConnection) => Promise<T>): Promise<T> {
+  write<T>(task: (db: SqlConnection) => Promise<T>, notify = true): Promise<T> {
     return this.enqueue(async () => {
       await this.connection.execAsync('BEGIN IMMEDIATE');
       try {
         const result = await task(this.connection);
         await this.connection.execAsync('COMMIT');
+        if (notify) for (const listener of this.listeners) {
+          try { listener(); } catch { /* Observers cannot undo a committed save. */ }
+        }
         return result;
       } catch (error) {
         await this.connection.execAsync('ROLLBACK');

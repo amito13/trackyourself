@@ -1,8 +1,10 @@
 # Local database and repositories
 
-This step implements the SQLite persistence layer for Android/iOS. It does not
-implement screens or the Supabase sync engine. The existing authentication flow
-and cloud migration are unchanged.
+SQLite stores workouts locally on Android/iOS. The app uploads pending changes
+to Supabase while signed in, checking every five seconds and retaining failed
+changes for retry. Profile shows upload status and server errors. Cloud downloads
+and cross-device restoration are not implemented. The cloud migration must already
+be applied, including its auth profile trigger and exercise library.
 
 `expo-sqlite` was installed using Expo's SDK-compatible installer. Rebuild an
 existing development client to include its native module. Expo Go includes SQLite.
@@ -65,7 +67,7 @@ Completed workouts cannot be changed through these repositories.
 
 The queue and record mutation commit together. Every new mutation increments the
 record's queue revision. Acknowledging an older revision does not clear a newer
-edit. Queue order is not upload order: the future sync engine must respect parent
+edit. Queue order is not upload order: the upload engine respects parent
 relationships, tombstones before conflicting replacements, profile update-only
 privileges, and the cloud completion protocol in `database-setup.md`. Serialize
 SQLite booleans as PostgreSQL booleans and decode `body_parts` JSON for uploads.
