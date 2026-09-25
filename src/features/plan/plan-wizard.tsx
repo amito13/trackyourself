@@ -1,3 +1,4 @@
+import { MuscleArt } from '@/components/workout/muscle-art';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
@@ -6,7 +7,6 @@ import {
   Button,
   Card,
   Chip,
-  ExerciseMark,
   Header,
   Icon,
   Loading,
@@ -14,13 +14,14 @@ import {
   Screen,
   Section,
 } from '@/components/ui';
-import { bodyParts, colors, ui, weekdays } from '@/constants/theme';
+import { bodyParts, weekdays, useTheme } from '@/constants/theme';
 import type { Exercise, PlanInput, Repositories } from '@/db/repositories';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { supabase } from '@/lib/supabase';
 import { errorMessage } from '@/utils/display';
 
 export function PlanWizard({ editing = false }: { editing?: boolean }) {
+  const { colors, ui } = useTheme();
   const {
     repositories,
     data,
@@ -350,7 +351,7 @@ export function PlanWizard({ editing = false }: { editing?: boolean }) {
                                 },
                               ]}
                             >
-                              <ExerciseMark small />
+                              <MuscleArt groups={[exercise.muscle_group]} size={46} />
                               <View style={ui.flex}>
                                 <Text style={[ui.body, { fontWeight: '600' }]}>
                                   {exercise.name}

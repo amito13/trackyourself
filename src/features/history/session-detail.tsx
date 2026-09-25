@@ -1,3 +1,4 @@
+import { MuscleArt } from '@/components/workout/muscle-art';
 import { router } from 'expo-router';
 import { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -5,7 +6,6 @@ import {
   Badge,
   Button,
   Card,
-  ExerciseMark,
   Header,
   Icon,
   Loading,
@@ -14,7 +14,7 @@ import {
   Screen,
   Section,
 } from '@/components/ui';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import { brand } from '@/constants/brand';
 import type { Repositories } from '@/db/repositories';
 import { useLocalQuery } from '@/hooks/use-local-query';
@@ -26,6 +26,7 @@ export function SessionDetail({
   sessionId: string;
   summary?: boolean;
 }) {
+  const { colors, ui } = useTheme();
   const { data, error, reload } = useLocalQuery(
     useCallback((r: Repositories) => r.history.session(sessionId), [sessionId]),
   );
@@ -117,7 +118,7 @@ export function SessionDetail({
             >
               <Card>
                 <View style={ui.row}>
-                  <ExerciseMark small />
+                  <MuscleArt groups={[exercise.muscle_group]} size={46} />
                   <View style={ui.flex}>
                     <Text style={[ui.body, { fontWeight: '700' }]}>
                       {exercise.exercise_name}

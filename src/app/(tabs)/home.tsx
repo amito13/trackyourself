@@ -1,3 +1,5 @@
+import { Image } from 'expo-image';
+import { MuscleArt, savedBodyParts } from '@/components/workout/muscle-art';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -7,20 +9,21 @@ import {
   Button,
   Card,
   Empty,
-  ExerciseMark,
   Icon,
+  IconButton,
   Loading,
   Notice,
   Screen,
   Section,
 } from '@/components/ui';
-import { colors, ui, weekdays } from '@/constants/theme';
+import { weekdays, useTheme } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
 import { LocalStatus } from '@/features/app/local-status';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { displayDate, errorMessage } from '@/utils/display';
 
 export default function HomeScreen() {
+  const { colors, ui, mode } = useTheme();
   const { data, error, reload, repositories } = useLocalQuery(
     useCallback(
       async (r: Repositories) => ({
@@ -59,13 +62,21 @@ export default function HomeScreen() {
     )[0];
   return (
     <Screen tabs>
-      <Brand />
-      <View style={ui.smallStack}>
-        <Text style={ui.muted}>{displayDate(now.toISOString())}</Text>
-        <Text style={ui.title}>
-          Let’s get after it
-          {data?.profile?.name ? `,\n${data.profile.name.split(' ')[0]}.` : '.'}
-        </Text>
+      <View style={ui.between}>
+        <View style={ui.flex}><Brand /></View>
+        <IconButton name="settings" label="Open profile and appearance" onPress={() => router.push('/profile')} />
+      </View>
+      <View style={{ minHeight: 238, borderRadius: 24, overflow: 'hidden', justifyContent: 'center', padding: 18, backgroundColor: colors.background }}>
+        <Image source={require('../../../assets/images/outdo/hero.png')} contentFit="cover"
+          style={{ position: 'absolute', inset: 0, opacity: mode === 'dark' ? 0.65 : 0.13 }} accessible={false} />
+        <View style={{ gap: 16, width: '82%' }}>
+          <Text style={ui.muted}>{displayDate(now.toISOString())}</Text>
+          <Text style={[ui.title, { fontSize: 34, lineHeight: 41 }]}>
+            Let’s get{'\n'}after it{data?.profile?.name ? ', ' : '.'}
+            {!!data?.profile?.name && <Text style={{ color: colors.accent }}>{data.profile.name.split(' ')[0]}.</Text>}
+          </Text>
+          <Text style={[ui.muted, { maxWidth: 210 }]}>Small steps today.{'\n'}Stronger you tomorrow.</Text>
+        </View>
       </View>
       {error && <Notice error message={error} onRetry={() => void reload()} />}
       {!data && !error && <Loading />}
@@ -76,6 +87,7 @@ export default function HomeScreen() {
             {weekdays.map((name, index) => {
               const training = data.plan?.days.some((d) => d.day_of_week === index + 1);
               const today = weekday === index + 1;
+              const calendarDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() - weekday + index + 1);
               return (
                 <View
                   key={name}
@@ -84,19 +96,22 @@ export default function HomeScreen() {
                     alignItems: 'center',
                     gap: 10,
                     paddingVertical: 13,
-                    borderRadius: 12,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: today ? colors.accent : colors.border,
                     backgroundColor: today ? colors.accent : colors.surface,
                   }}
                 >
                   <Text
                     style={{
-                      color: today ? colors.background : colors.muted,
+                      color: today ? colors.onAccent : colors.muted,
                       fontSize: 11,
                       fontWeight: '700',
                     }}
                   >
                     {name.slice(0, 1)}
                   </Text>
+                  <Text style={{ color: today ? colors.onAccent : colors.text, fontSize: 16, fontWeight: '700' }}>{calendarDay.getDate()}</Text>
                   <View
                     style={{
                       width: 5,
@@ -104,7 +119,7 @@ export default function HomeScreen() {
                       borderRadius: 3,
                       backgroundColor: training
                         ? today
-                          ? colors.background
+                          ? colors.onAccent
                           : colors.accent
                         : colors.border,
                     }}
@@ -115,11 +130,12 @@ export default function HomeScreen() {
           </View>
           <Section
             title={data.active ? 'Pick up where you left off' : 'Today’s workout'}
+            trailing={data.plan ? <IconButton name="calendar" label="View workout plan" onPress={() => router.push('/plan/edit')} /> : undefined}
           />
           {data.active ? (
-            <Card style={{ borderColor: '#6D4830' }}>
+            <Card style={{ borderColor: colors.accentBorder }}>
               <Badge>IN PROGRESS</Badge>
-              <Text style={ui.title}>{data.active.title}</Text>
+              <View style={ui.row}><MuscleArt groups={savedBodyParts(data.active.body_parts)} size={70} /><Text style={[ui.heading, ui.flex]}>{data.active.title}</Text></View>
               <Text style={ui.muted}>
                 Started {displayDate(data.active.workout_date, true)}. Your sets are right
                 where you left them.
@@ -132,15 +148,18 @@ export default function HomeScreen() {
               />
             </Card>
           ) : finishedToday ? (
-            <Card>
+            <Card style={{ borderColor: colors.success, backgroundColor: colors.successSoft }}>
               <Badge green>WORKOUT COMPLETE</Badge>
-              <Text style={ui.heading}>You showed up.</Text>
-              <Text style={ui.muted}>
-                Today’s work is in the books. Take a look at your session.
-              </Text>
+              <View style={ui.row}>
+                <View style={[ui.flex, ui.smallStack]}>
+                  <Text style={ui.heading}>You showed up.</Text>
+                  <Text style={ui.muted}>Today’s work is in the books. Take a look at your session.</Text>
+                </View>
+                <Image source={require('../../../assets/images/outdo/complete.png')} contentFit="contain"
+                  style={{ width: 92, height: 92, borderRadius: 18 }} accessible={false} />
+              </View>
               <Button
                 title="View workout"
-                secondary
                 icon="arrow-right"
                 onPress={() =>
                   router.push({
@@ -151,21 +170,19 @@ export default function HomeScreen() {
               />
             </Card>
           ) : data.today ? (
-            <Card style={{ borderColor: '#6D4830' }}>
+            <Card style={{ borderColor: colors.accentBorder }}>
               <View style={ui.between}>
                 <Badge>{weekdays[weekday - 1].toUpperCase()}</Badge>
                 <Icon name="arrow-up-right" color={colors.accent} />
               </View>
-              <Text style={ui.title}>{data.today.bodyParts.join(' + ')}</Text>
+              <View style={ui.row}><MuscleArt groups={data.today.bodyParts} size={76} /><Text style={[ui.heading, ui.flex]}>{data.today.bodyParts.join(' + ')}</Text></View>
               <Text style={ui.muted}>
                 {data.today.exercises.length} exercises · your pace
               </Text>
               <View style={ui.rule} />
-              {data.today.exercises.map((exercise, i) => (
+              {data.today.exercises.map((exercise) => (
                 <View style={ui.row} key={exercise.id}>
-                  <Text style={[ui.small, { width: 22, fontVariant: ['tabular-nums'] }]}>
-                    {String(i + 1).padStart(2, '0')}
-                  </Text>
+                  <MuscleArt groups={[exercise.muscle_group]} size={48} />
                   <Text style={[ui.body, ui.flex]}>{exercise.name}</Text>
                 </View>
               ))}
@@ -244,7 +261,7 @@ export default function HomeScreen() {
               >
                 <Card>
                   <View style={ui.row}>
-                    <ExerciseMark small />
+                    <MuscleArt groups={savedBodyParts(data.recent[0].body_parts)} size={56} />
                     <View style={ui.flex}>
                       <Text style={ui.body}>{data.recent[0].title}</Text>
                       <Text style={ui.small}>

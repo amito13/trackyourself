@@ -1,3 +1,4 @@
+import { MuscleArt } from '@/components/workout/muscle-art';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
@@ -5,7 +6,6 @@ import {
   Badge,
   Button,
   Card,
-  ExerciseMark,
   Header,
   Icon,
   Loading,
@@ -13,12 +13,13 @@ import {
   Screen,
   Section,
 } from '@/components/ui';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
 import { LocalStatus } from '@/features/app/local-status';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { errorMessage } from '@/utils/display';
 export default function WorkoutScreen() {
+  const { colors, ui } = useTheme();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const { data, error, reload, repositories } = useLocalQuery(
     useCallback(
@@ -143,7 +144,7 @@ export default function WorkoutScreen() {
             >
               <Card>
                 <View style={ui.row}>
-                  <ExerciseMark />
+                  <MuscleArt groups={[exercise.muscle_group]} size={60} />
                   <View style={ui.flex}>
                     <Text style={ui.small}>
                       {String(index + 1).padStart(2, '0')} /{' '}

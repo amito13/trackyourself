@@ -2,13 +2,14 @@ import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { Button, Card, Chip, Empty, Header, Icon, Loading, Metric, Notice, Screen } from '@/components/ui';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
 import { buildAnalytics, dateKey, formatNumber, periodBounds, shortDate, type Period } from '@/features/analyze/model';
 import { TrendChart } from '@/features/analyze/trend-chart';
 import { useLocalQuery } from '@/hooks/use-local-query';
 
 export default function AnalyzeScreen() {
+  const { colors, ui } = useTheme();
   const [days, setDays] = useState<Period>(30);
   const [exerciseId, setExerciseId] = useState<string>();
   const { data, loading, error, reload } = useLocalQuery(useCallback(async (r: Repositories) => {
@@ -46,7 +47,7 @@ export default function AnalyzeScreen() {
           <Card>
             <View style={ui.between}>
               <Text style={ui.heading}>Volume</Text>
-              <Icon name="bar-chart-2" color="#32A9E0" />
+              <Icon name="bar-chart-2" color={colors.chart} />
             </View>
             <Text style={ui.title}>{formatNumber(stats.totalVolume)} <Text style={ui.muted}>kg</Text></Text>
             <Text style={[ui.small, stats.change !== null && stats.change > 0 && { color: colors.success }]}>

@@ -1,9 +1,10 @@
 import { Text, View } from 'react-native';
 import { Icon } from '@/components/ui';
-import { ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import { useData } from './data-context';
 
 export function LocalStatus() {
+  const { ui } = useTheme();
   const { sync } = useData();
   const label = sync.status === 'synced' ? 'All changes saved'
     : sync.status === 'syncing' ? 'Saving automatically…'

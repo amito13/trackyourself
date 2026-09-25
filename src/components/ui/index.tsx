@@ -1,3 +1,4 @@
+import { palettes, type ThemeColors } from '@/constants/palettes';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import type { ComponentProps, ReactNode } from 'react';
@@ -14,20 +15,21 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import { brand } from '@/constants/brand';
 
 export type IconName = ComponentProps<typeof Feather>['name'];
 export function Icon({
   name,
-  color = colors.muted,
+  color,
   size = 20,
 }: {
   name: IconName;
   color?: string;
   size?: number;
 }) {
-  return <Feather name={name} size={size} color={color} />;
+  const { colors } = useTheme();
+  return <Feather name={name} size={size} color={color ?? colors.muted} />;
 }
 export function Screen({
   children,
@@ -38,6 +40,8 @@ export function Screen({
   footer?: ReactNode;
   tabs?: boolean;
 }) {
+  const { ui, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <SafeAreaView
       style={styles.screen}
@@ -66,6 +70,8 @@ export function Card({
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { mode } = useTheme();
+  const styles = themedStyles[mode];
   return <View style={[styles.card, style]}>{children}</View>;
 }
 export function Button({
@@ -83,7 +89,9 @@ export function Button({
   loading?: boolean;
   icon?: IconName;
 }) {
-  const color = secondary ? colors.text : colors.background;
+  const { colors, mode } = useTheme();
+  const styles = themedStyles[mode];
+  const color = secondary ? colors.text : colors.onAccent;
   return (
     <Pressable
       accessibilityRole="button"
@@ -118,6 +126,8 @@ export function IconButton({
   onPress: () => void;
   disabled?: boolean;
 }) {
+  const { colors, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <Pressable
       accessibilityRole="button"
@@ -144,6 +154,7 @@ export function Header({
   right?: ReactNode;
   onBack?: () => void;
 }) {
+  const { colors, ui } = useTheme();
   return (
     <View style={[ui.between, { minHeight: 44, flexShrink: 0 }]}>
       <View style={[ui.row, ui.flex]}>
@@ -166,13 +177,15 @@ export function Header({
   );
 }
 export function Brand() {
+  const { colors, ui, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <View style={ui.row}>
       <View style={styles.logo}>
         <MaterialCommunityIcons
-          name="weight-lifter"
+          name="dumbbell"
           size={26}
-          color={colors.background}
+          color={colors.onAccent}
         />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
@@ -191,6 +204,8 @@ export function Badge({
   green?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { colors, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <View
       style={[
@@ -221,6 +236,8 @@ export function Chip({
   selected?: boolean;
   onPress: () => void;
 }) {
+  const { colors, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <Pressable
       accessibilityRole="button"
@@ -252,6 +269,8 @@ export function Notice({
   error?: boolean;
   onRetry?: () => void;
 }) {
+  const { colors, ui, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <View
       style={[styles.notice, error && { borderColor: colors.danger }]}
@@ -282,6 +301,8 @@ export function Empty({
   detail: string;
   action?: ReactNode;
 }) {
+  const { colors, ui, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <Card style={styles.empty}>
       <View style={styles.emptyIcon}>
@@ -294,6 +315,7 @@ export function Empty({
   );
 }
 export function Loading() {
+  const { colors, ui } = useTheme();
   return (
     <View style={{ padding: 48 }}>
       <ActivityIndicator color={colors.accent} />
@@ -304,6 +326,7 @@ export function Loading() {
   );
 }
 export function Section({ title, trailing }: { title: string; trailing?: ReactNode }) {
+  const { ui } = useTheme();
   return (
     <View style={[ui.between, { marginTop: 8 }]}>
       <Text style={ui.label}>{title.toUpperCase()}</Text>
@@ -312,6 +335,8 @@ export function Section({ title, trailing }: { title: string; trailing?: ReactNo
   );
 }
 export function ExerciseMark({ small = false }: { small?: boolean }) {
+  const { colors, mode } = useTheme();
+  const styles = themedStyles[mode];
   return (
     <View style={[styles.exerciseMark, small && { width: 38, height: 38 }]}>
       <MaterialCommunityIcons
@@ -323,6 +348,7 @@ export function ExerciseMark({ small = false }: { small?: boolean }) {
   );
 }
 export function Metric({ value, label }: { value: string | number; label: string }) {
+  const { colors, ui } = useTheme();
   return (
     <View style={ui.flex}>
       <Text
@@ -339,7 +365,7 @@ export function Metric({ value, label }: { value: string | number; label: string
     </View>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: {
     padding: 22,
@@ -365,7 +391,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 20,
     gap: 16,
   },
@@ -373,7 +399,7 @@ const styles = StyleSheet.create({
     minHeight: 54,
     paddingVertical: 14,
     paddingHorizontal: 18,
-    borderRadius: 14,
+    borderRadius: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -385,16 +411,16 @@ const styles = StyleSheet.create({
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
-    backgroundColor: colors.surface,
+    borderRadius: 24,
+    backgroundColor: colors.raised,
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 16,
   },
   brand: { fontSize: 24, lineHeight: 30, fontWeight: '900', color: colors.text, letterSpacing: 2 },
   badge: {
@@ -410,8 +436,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
+    borderRadius: 24,
+    backgroundColor: colors.raised,
   },
   notice: {
     padding: 14,
@@ -436,3 +462,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+const themedStyles = { light: createStyles(palettes.light), dark: createStyles(palettes.dark) };

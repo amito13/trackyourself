@@ -1,0 +1,36 @@
+export const darkColors = {
+  background: '#000000',
+  surface: '#0E1012',
+  raised: '#191B1E',
+  border: '#25282C',
+  text: '#F5F3EF',
+  muted: '#A6AAAE',
+  accent: '#FF853F',
+  onAccent: '#000000',
+  accentSoft: '#35251E',
+  accentBorder: '#6D4830',
+  success: '#83E6AD',
+  successSoft: '#0B281B',
+  danger: '#FF9A95',
+  chart: '#32A9E0',
+};
+export type ThemeColors = typeof darkColors;
+export const palettes: Record<'light' | 'dark', ThemeColors> = {
+  dark: darkColors,
+  light: {
+    background: '#F6F5F2',
+    surface: '#FFFFFF',
+    raised: '#ECEAE6',
+    border: '#D9D6D0',
+    text: '#191919',
+    muted: '#64615D',
+    accent: '#AD3B05',
+    onAccent: '#FFFFFF',
+    accentSoft: '#FFF0E5',
+    accentBorder: '#D8A080',
+    success: '#226C42',
+    successSoft: '#E5F3E9',
+    danger: '#B42318',
+    chart: '#087BAE',
+  },
+};

@@ -1,3 +1,4 @@
+import { MuscleArt, savedBodyParts } from '@/components/workout/muscle-art';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -6,27 +7,29 @@ import {
   Button,
   Card,
   Empty,
-  ExerciseMark,
-  Header,
+  Brand,
+  Section,
   Icon,
   Loading,
   Notice,
   Screen,
 } from '@/components/ui';
-import { ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { displayDate } from '@/utils/display';
 export default function HistoryScreen() {
+  const { colors, ui } = useTheme();
   const [page, setPage] = useState(0);
   const { data, error, reload } = useLocalQuery(
     useCallback((r: Repositories) => r.history.list(20, page * 20), [page]),
   );
   return (
     <Screen tabs>
-      <Header title="Previous data" />
+      <Brand />
+      <Section title="Previous data" />
       <View style={ui.smallStack}>
-        <Text style={ui.title}>Your work,{'\n'}recorded.</Text>
+        <Text style={ui.title}>Your work, <Text style={{ color: colors.accent }}>recorded.</Text></Text>
         <Text style={ui.muted}>Every session. Every set. All in one place.</Text>
       </View>
       {error && <Notice error message={error} onRetry={() => void reload()} />}
@@ -49,10 +52,13 @@ export default function HistoryScreen() {
           }
         />
       )}
+      {!!data?.length && <Section title="Sessions" trailing={<Text style={ui.small}>Latest first</Text>} />}
       {data?.map((session) => (
         <Pressable
           key={session.id}
           accessibilityRole="button"
+          accessibilityLabel={`View ${session.title}, ${displayDate(session.workout_date)}`}
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           onPress={() =>
             router.push({
               pathname: '/history/[sessionId]',
@@ -60,16 +66,13 @@ export default function HistoryScreen() {
             })
           }
         >
-          <Card>
-            <View style={ui.between}>
-              <Text style={ui.small}>{displayDate(session.workout_date)}</Text>
-              <Badge green>COMPLETE</Badge>
-            </View>
+          <Card style={{ padding: 14 }}>
             <View style={ui.row}>
-              <ExerciseMark />
-              <View style={ui.flex}>
-                <Text style={ui.heading}>{session.title}</Text>
-                <Text style={ui.small}>View sets & compare performance</Text>
+              <MuscleArt groups={savedBodyParts(session.body_parts)} size={66} />
+              <View style={[ui.flex, { gap: 6 }]}>
+                <Text style={ui.small}>{displayDate(session.workout_date)}</Text>
+                <Text style={[ui.body, { fontWeight: '700', fontSize: 17 }]}>{session.title}</Text>
+                <Badge green>COMPLETED</Badge>
               </View>
               <Icon name="chevron-right" />
             </View>

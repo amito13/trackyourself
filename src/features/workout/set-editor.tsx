@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import { Button, Chip, Icon, IconButton, Notice } from '@/components/ui';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import type { ExerciseSet, SetInput } from '@/db/repositories';
 import { errorMessage, setLabel } from '@/utils/display';
 
@@ -22,6 +22,7 @@ export function SetEditor({
   report: (id: string, dirty: boolean) => void;
   locked: boolean;
 }) {
+  const { colors, ui } = useTheme();
   const [weight, setWeight] = useState(
     set.weight_kg === null ? '' : String(set.weight_kg),
   );

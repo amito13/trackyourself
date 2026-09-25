@@ -4,9 +4,10 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Text } from 'react-native';
 import { Brand, Button, Loading, Notice, Screen } from '@/components/ui';
-import { ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import { errorMessage } from '@/utils/display';
 export default function AuthCallbackScreen() {
+  const { ui } = useTheme();
   const handleDeepLink = useAuthStore((s) => s.handleDeepLink);
   const url = Linking.useLinkingURL();
   const [error, setError] = useState<string | null>(null);

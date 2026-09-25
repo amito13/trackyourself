@@ -11,14 +11,16 @@ import {
   Screen,
   Section,
 } from '@/components/ui';
-import { colors, ui, weekdays } from '@/constants/theme';
+import { weekdays, useTheme } from '@/constants/theme';
 import { brand } from '@/constants/brand';
+import { AppearanceSetting } from '@/features/appearance/appearance-setting';
 import type { Repositories } from '@/db/repositories';
 import { LocalStatus } from '@/features/app/local-status';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { useAuthStore } from '@/state/auth-store';
 import { errorMessage } from '@/utils/display';
 export default function ProfileScreen() {
+  const { colors, ui } = useTheme();
   const signOut = useAuthStore((s) => s.signOut);
   const { data, error, reload } = useLocalQuery(
     useCallback(
@@ -103,6 +105,7 @@ export default function ProfileScreen() {
               onPress={() => router.push(data.plan ? '/plan/edit' : '/onboarding')}
             />
           </Card>
+          <AppearanceSetting />
           <Section title="Your data" />
           <Card>
             <LocalStatus />

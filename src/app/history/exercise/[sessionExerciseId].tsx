@@ -2,11 +2,12 @@ import { useLocalSearchParams } from 'expo-router';
 import { useCallback } from 'react';
 import { Text, View } from 'react-native';
 import { Badge, Card, Header, Loading, Notice, Screen } from '@/components/ui';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { displayDate, setLabel } from '@/utils/display';
 export default function ComparisonScreen() {
+  const { colors, ui } = useTheme();
   const { sessionExerciseId } = useLocalSearchParams<{ sessionExerciseId: string }>();
   const { data, error, reload } = useLocalQuery(
     useCallback(

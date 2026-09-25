@@ -1,7 +1,8 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { colors } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 export default function TabLayout() {
+  const { colors } = useTheme();
   return (
     <Tabs
       initialRouteName="home"
@@ -13,8 +14,12 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
-          paddingTop: 8,
+          paddingTop: 10,
+          borderTopLeftRadius: 26,
+          borderTopRightRadius: 26,
         },
+        tabBarActiveBackgroundColor: colors.accentSoft,
+        tabBarItemStyle: { borderRadius: 18, marginHorizontal: 3 },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginBottom: 4 },
         sceneStyle: { backgroundColor: colors.background },
       }}
@@ -24,7 +29,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Feather name="grid" size={size} color={color} />
+            <Feather name="home" size={size} color={color} />
           ),
         }}
       />

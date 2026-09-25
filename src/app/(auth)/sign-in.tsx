@@ -1,12 +1,15 @@
+import { palettes, type ThemeColors } from '@/constants/palettes';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Brand, Button, Card, Icon, Notice, Screen } from '@/components/ui';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import { SignInWithOAuth } from '@/lib/auth';
 import { errorMessage } from '@/utils/display';
 
 export default function SignInScreen() {
+  const { colors, ui, mode } = useTheme();
+  const styles = themedStyles[mode];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   async function signIn() {
@@ -53,7 +56,7 @@ export default function SignInScreen() {
       >
         <View style={styles.ring} />
         <View
-          style={[styles.ring, { width: 140, height: 140, borderColor: '#5B3C2B' }]}
+          style={[styles.ring, { width: 140, height: 140, borderColor: colors.accentBorder }]}
         />
         <MaterialCommunityIcons
           name="dumbbell"
@@ -89,7 +92,7 @@ export default function SignInScreen() {
     </Screen>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   hero: {
     color: colors.text,
     fontSize: 46,
@@ -102,14 +105,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: '#181716',
+    backgroundColor: colors.surface,
     borderRadius: 24,
   },
   ring: {
     width: 240,
     height: 240,
     borderWidth: 1,
-    borderColor: '#36312B',
+    borderColor: colors.border,
     borderRadius: 150,
     position: 'absolute',
   },
@@ -121,3 +124,5 @@ const styles = StyleSheet.create({
     gap: 6,
   },
 });
+
+const themedStyles = { light: createStyles(palettes.light), dark: createStyles(palettes.dark) };

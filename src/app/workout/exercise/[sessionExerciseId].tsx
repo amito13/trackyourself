@@ -3,13 +3,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 import { Badge, Button, Header, Loading, Notice, Screen } from '@/components/ui';
-import { ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
 import { SetEditor } from '@/features/workout/set-editor';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { displayDate, errorMessage } from '@/utils/display';
 
 export default function ExerciseScreen() {
+  const { ui } = useTheme();
   const { sessionExerciseId } = useLocalSearchParams<{ sessionExerciseId: string }>();
   const { data, error, reload, repositories } = useLocalQuery(
     useCallback(

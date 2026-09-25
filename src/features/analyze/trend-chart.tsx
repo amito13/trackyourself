@@ -1,13 +1,15 @@
+import { palettes, type ThemeColors } from '@/constants/palettes';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, ui } from '@/constants/theme';
+import { useTheme } from '@/constants/theme';
 import { formatNumber, shortDate, type ChartPoint } from './model';
 
-const BLUE = '#32A9E0';
 const HEIGHT = 156;
 const INSET = 12;
 
 export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar' | 'line' }) {
+  const { colors, ui, mode } = useTheme();
+  const styles = themedStyles[mode];
   const [width, setWidth] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const maximum = Math.max(1, ...points.map((p) => p.value));
@@ -43,7 +45,7 @@ export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar'
               const dy = y(point.value) - y(points[i].value);
               const length = Math.hypot(dx, dy);
               return <View key={`line-${point.date}`} pointerEvents="none" style={{
-                position: 'absolute', height: 2, width: length, backgroundColor: BLUE,
+                position: 'absolute', height: 2, width: length, backgroundColor: colors.chart,
                 left: (x(i) + x(i + 1) - length) / 2,
                 top: (y(points[i].value) + y(point.value)) / 2 - 1,
                 transform: [{ rotate: `${Math.atan2(dy, dx)}rad` }],
@@ -64,8 +66,8 @@ export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar'
                 <View style={kind === 'bar' ? {
                   height: point.value === 0 ? 2 : Math.max(2, HEIGHT * point.value / top),
                   borderTopLeftRadius: 4, borderTopRightRadius: 4,
-                  backgroundColor: selected === i ? colors.text : point.value === 0 ? colors.border : BLUE,
-                } : { width: selected === i ? 12 : 8, height: selected === i ? 12 : 8, borderRadius: 6, backgroundColor: selected === i ? colors.text : BLUE }} />
+                  backgroundColor: selected === i ? colors.text : point.value === 0 ? colors.border : colors.chart,
+                } : { width: selected === i ? 12 : 8, height: selected === i ? 12 : 8, borderRadius: 6, backgroundColor: selected === i ? colors.text : colors.chart }} />
               </Pressable>
             ))}
           </View>
@@ -78,6 +80,8 @@ export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar'
     </View>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   grid: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: colors.border },
 });
+
+const themedStyles = { light: createStyles(palettes.light), dark: createStyles(palettes.dark) };
