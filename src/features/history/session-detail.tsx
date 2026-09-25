@@ -15,6 +15,7 @@ import {
   Section,
 } from '@/components/ui';
 import { colors, ui } from '@/constants/theme';
+import { brand } from '@/constants/brand';
 import type { Repositories } from '@/db/repositories';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { displayDate } from '@/utils/display';
@@ -49,21 +50,26 @@ export function SessionDetail({
       {data && (
         <>
           {summary ? (
-            <View style={{ alignItems: 'center', paddingVertical: 22, gap: 16 }}>
+            <View style={{ alignItems: 'center', flexShrink: 0, paddingVertical: 16, gap: 16 }}>
               <View
                 style={{
-                  padding: 24,
-                  borderRadius: 50,
+                  width: 88,
+                  height: 88,
+                  borderRadius: 44,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   backgroundColor: colors.successSoft,
                 }}
               >
                 <Icon name="check" color={colors.success} size={40} />
               </View>
-              <Badge green>WORKOUT COMPLETE</Badge>
-              <Text style={[ui.title, { textAlign: 'center' }]}>
-                You put in{'\n'}the work.
+              <Badge green style={{ alignSelf: 'center' }}>WORKOUT COMPLETE</Badge>
+              <Text style={[ui.title, { alignSelf: 'stretch', textAlign: 'center', flexShrink: 0 }]}>
+                You put in the work.
               </Text>
-              <Text style={ui.muted}>Another session. Another step forward.</Text>
+              <Text style={[ui.muted, { alignSelf: 'stretch', textAlign: 'center', flexShrink: 0 }]}>
+                {brand.tagline}
+              </Text>
             </View>
           ) : (
             <View style={ui.smallStack}>

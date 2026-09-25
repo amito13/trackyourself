@@ -12,14 +12,13 @@ import {
   Section,
 } from '@/components/ui';
 import { colors, ui, weekdays } from '@/constants/theme';
+import { brand } from '@/constants/brand';
 import type { Repositories } from '@/db/repositories';
-import { useData } from '@/features/app/data-context';
 import { LocalStatus } from '@/features/app/local-status';
 import { useLocalQuery } from '@/hooks/use-local-query';
 import { useAuthStore } from '@/state/auth-store';
 import { errorMessage } from '@/utils/display';
 export default function ProfileScreen() {
-  const { sync, syncNow } = useData();
   const signOut = useAuthStore((s) => s.signOut);
   const { data, error, reload } = useLocalQuery(
     useCallback(
@@ -50,11 +49,12 @@ export default function ProfileScreen() {
       {!data && !error && <Loading />}
       {data && (
         <>
-          <View style={{ alignItems: 'center', gap: 12, paddingVertical: 16 }}>
+          <View style={{ alignItems: 'center', flexShrink: 0, gap: 12, paddingVertical: 16 }}>
             <View
               style={{
                 width: 82,
                 height: 82,
+                flexShrink: 0,
                 borderRadius: 28,
                 backgroundColor: colors.accentSoft,
                 justifyContent: 'center',
@@ -65,8 +65,12 @@ export default function ProfileScreen() {
                 {data.profile?.name?.slice(0, 1).toUpperCase() || 'A'}
               </Text>
             </View>
-            <Text style={ui.heading}>{data.profile?.name || 'Athlete'}</Text>
-            <Text style={ui.muted}>{data.profile?.email}</Text>
+            <Text style={[ui.heading, { alignSelf: 'stretch', textAlign: 'center' }]}>
+              {data.profile?.name || 'Athlete'}
+            </Text>
+            <Text style={[ui.muted, { alignSelf: 'stretch', textAlign: 'center' }]}>
+              {data.profile?.email}
+            </Text>
           </View>
           <Section
             title="My workout plan"
@@ -103,11 +107,9 @@ export default function ProfileScreen() {
           <Card>
             <LocalStatus />
             <Text style={ui.small}>
-              {sync.pending} changes waiting to upload. Your data is saved on this device first.
+              Your progress saves automatically. Offline changes upload when you’re back online.
             </Text>
           </Card>
-          {sync.error && <Notice error message={sync.error} onRetry={syncNow} />}
-          <Button title="Sync now" icon="upload-cloud" secondary loading={sync.status === 'syncing'} onPress={syncNow} />
           {signOutError && <Notice error message={signOutError} />}
           <Button
             title="Log out"
@@ -116,7 +118,10 @@ export default function ProfileScreen() {
             loading={busy}
             onPress={() => void logout()}
           />
-          <Text style={[ui.small, { textAlign: 'center' }]}>TRACK YOURSELF · v1.0.0</Text>
+          <View style={[ui.smallStack, { alignItems: 'center' }]}>
+            <Text style={[ui.label, { color: colors.text }]}>{brand.name} · v1.0.0</Text>
+            <Text style={[ui.small, { textAlign: 'center' }]}>{brand.tagline}</Text>
+          </View>
         </>
       )}
     </Screen>

@@ -1,7 +1,7 @@
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Badge, Brand, Button, Card, Icon, Notice, Screen } from '@/components/ui';
+import { Brand, Button, Card, Icon, Notice, Screen } from '@/components/ui';
 import { colors, ui } from '@/constants/theme';
 import { SignInWithOAuth } from '@/lib/auth';
 import { errorMessage } from '@/utils/display';
@@ -38,7 +38,6 @@ export default function SignInScreen() {
     >
       <Brand />
       <View style={{ marginTop: 20, gap: 16 }}>
-        <Badge>ONE MORE REP. A LITTLE STRONGER.</Badge>
         <Text style={styles.hero}>
           Your last lift.{'\n'}Your next
           <Text style={{ color: colors.accent }}> best.</Text>

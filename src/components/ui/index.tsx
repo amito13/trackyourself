@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, ui } from '@/constants/theme';
+import { brand } from '@/constants/brand';
 
 export type IconName = ComponentProps<typeof Feather>['name'];
 export function Icon({
@@ -144,7 +145,7 @@ export function Header({
   onBack?: () => void;
 }) {
   return (
-    <View style={ui.between}>
+    <View style={[ui.between, { minHeight: 44, flexShrink: 0 }]}>
       <View style={[ui.row, ui.flex]}>
         {back && (
           <IconButton
@@ -174,24 +175,28 @@ export function Brand() {
           color={colors.background}
         />
       </View>
-      <Text style={styles.brand}>
-        TRACK<Text style={{ color: colors.accent }}> / </Text>YOURSELF
-      </Text>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={styles.brand}>{brand.name}</Text>
+        <Text style={ui.small}>{brand.tagline}</Text>
+      </View>
     </View>
   );
 }
 export function Badge({
   children,
   green = false,
+  style,
 }: {
   children: ReactNode;
   green?: boolean;
+  style?: StyleProp<ViewStyle>;
 }) {
   return (
     <View
       style={[
         styles.badge,
         { backgroundColor: green ? colors.successSoft : colors.accentSoft },
+        style,
       ]}
     >
       <Text
@@ -391,7 +396,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 12,
   },
-  brand: { fontSize: 13, fontWeight: '800', color: colors.text, letterSpacing: 1.2 },
+  brand: { fontSize: 24, lineHeight: 30, fontWeight: '900', color: colors.text, letterSpacing: 2 },
   badge: {
     alignSelf: 'flex-start',
     paddingHorizontal: 10,

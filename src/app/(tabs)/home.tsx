@@ -210,21 +210,26 @@ export default function HomeScreen() {
             </Card>
           )}
           <LocalStatus />
-          <Section
-            title="Your progress"
-            trailing={<Text style={ui.small}>Coming soon</Text>}
-          />
-          <Card>
-            <View style={ui.row}>
-              <Icon name="bar-chart-2" color={colors.accent} size={26} />
-              <View style={ui.flex}>
-                <Text style={ui.heading}>Every set adds up.</Text>
-                <Text style={ui.muted}>
-                  A bigger picture of your training is on the way.
-                </Text>
+          <Section title="Your progress" />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Analyze your progress"
+            onPress={() => router.push('/analyze')}
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <Card>
+              <View style={ui.row}>
+                <Icon name="bar-chart-2" color={colors.accent} size={26} />
+                <View style={ui.flex}>
+                  <Text style={ui.heading}>Every set adds up.</Text>
+                  <Text style={ui.muted}>
+                    See your volume, strength, and progress over time.
+                  </Text>
+                </View>
+                <Icon name="chevron-right" color={colors.accent} />
               </View>
-            </View>
-          </Card>
+            </Card>
+          </Pressable>
           {!!data.recent.length && (
             <>
               <Section title="Last session" />

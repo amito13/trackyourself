@@ -1,3 +1,4 @@
+import { AnalyticsRepository } from './analytics';
 import type { LocalDatabase } from '../sqlite/connection';
 import { ExerciseRepository } from './exercises';
 import { HistoryRepository } from './history';
@@ -16,6 +17,7 @@ export function createRepositories(database: LocalDatabase, runtime: RepositoryR
     plans: new PlanRepository(database, runtime),
     workouts: new WorkoutRepository(database, runtime),
     history: new HistoryRepository(database),
+    analytics: new AnalyticsRepository(database),
     pending: new PendingRepository(database),
   };
 }

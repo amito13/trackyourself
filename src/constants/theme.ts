@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 export const colors = {
-  background: '#101112',
-  surface: '#1B1D1F',
-  raised: '#25282B',
-  border: '#303336',
+  background: '#000000',
+  surface: '#0C0C0C',
+  raised: '#171717',
+  border: '#262626',
   text: '#F5F3EF',
   muted: '#A6AAAE',
   accent: '#FF8A4C',
