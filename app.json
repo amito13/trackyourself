@@ -4,11 +4,11 @@
     "slug": "Track-yourself",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/outdo-icon.png",
     "scheme": "trackyourself",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/outdo-icon.png"
     },
     "android": {
       "adaptiveIcon": {
