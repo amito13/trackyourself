@@ -309,6 +309,12 @@ export function PlanWizard({ editing = false }: { editing?: boolean }) {
                 </Card>
               ) : (
                 <>
+                  <Button
+                    title="Refresh exercises"
+                    icon="download"
+                    onPress={() => void fetchLibrary()}
+                    loading={fetching}
+                  />
                   <TextInput
                     style={ui.input}
                     placeholder="Search exercises…"

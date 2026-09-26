@@ -3,7 +3,7 @@
 1. Open your project's **SQL Editor** in Supabase.
 2. Paste the entire contents of `src/db/migrations/001_initial_schema.sql`.
 3. Run it once. The migration uses a transaction, creates nine application tables,
-   enables row-level security, installs triggers, and seeds 46 exercises.
+   enables row-level security, installs triggers, and seeds 52 exercises.
 
 This is an initial migration, not an upgrade of existing application tables. If
 tables with these names already exist, inspect and reconcile their schema first.
@@ -13,6 +13,19 @@ It does not change Google OAuth configuration or require credentials in SQL.
 New Supabase Auth users receive a profile automatically. Existing Auth users are
 backfilled. `users.id` and `users.auth_user_id` both equal the Supabase Auth UUID.
 Use that UUID for every user-owned row's `user_id`.
+
+## Updating an existing exercise library
+
+Run `src/db/migrations/002_back_shoulder_exercises.sql` in the Supabase SQL Editor
+to add Hyperextension, Shrugs, Straight Arms Pulldown, and Rear Delt Fly under Back,
+plus Rear Delt Fly and Shrugs under Shoulders. It can be rerun safely and preserves
+existing exercise IDs. Fresh databases created with the current initial migration
+already include these entries.
+
+In onboarding or **Edit your plan**, choose your days and split, then tap
+**Refresh exercises** on the exercise selection step to download the additions.
+The downloaded library remains available offline. If no library is cached yet,
+use **Load exercises** instead.
 
 ## Data conventions
 
