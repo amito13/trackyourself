@@ -10,21 +10,24 @@
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "development"
-      }
+      },
+      "environment": "development"
     },
     "preview": {
       "node": "22.22.0",
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "preview"
-      }
+      },
+      "environment": "preview"
     },
     "production": {
       "node": "22.22.0",
       "autoIncrement": true,
       "env": {
         "APP_VARIANT": "production"
-      }
+      },
+      "environment": "production"
     }
   },
   "submit": {

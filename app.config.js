@@ -7,6 +7,8 @@ module.exports = ({ config }) => {
     scheme: isDevelopment ? "trackyourself-dev" : config.scheme,
     android: {
       ...config.android,
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_JSON ?? config.android.googleServicesFile,
       package: isDevelopment
         ? `${config.android.package}.dev`
         : config.android.package,
