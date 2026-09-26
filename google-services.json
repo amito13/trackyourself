@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "956594059301",
-    "project_id": "notification-772f3",
-    "storage_bucket": "notification-772f3.firebasestorage.app"
+    "project_number": "315666791607",
+    "project_id": "outdo-2fe7c",
+    "storage_bucket": "outdo-2fe7c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:956594059301:android:1dce5a94cb705416efa7cc",
+        "mobilesdk_app_id": "1:315666791607:android:7aadf0f73c591624d96132",
         "android_client_info": {
           "package_name": "com.amit1312.Trackyourself"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBBzbsKcFrhgSKIPTP1eZA4G7DH6q0tJLE"
+          "current_key": "AIzaSyDFQcAHCOB09b7Ox2PwVAYEi_eU2reFCv4"
         }
       ],
       "services": {
@@ -26,15 +26,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:956594059301:android:ed9b54bb155ad1c6efa7cc",
+        "mobilesdk_app_id": "1:315666791607:android:b02993496cfe15add96132",
         "android_client_info": {
-          "package_name": "com.amit1312.test"
+          "package_name": "com.amit1312.Trackyourself.dev"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBBzbsKcFrhgSKIPTP1eZA4G7DH6q0tJLE"
+          "current_key": "AIzaSyDFQcAHCOB09b7Ox2PwVAYEi_eU2reFCv4"
         }
       ],
       "services": {
