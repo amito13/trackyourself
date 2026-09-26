@@ -12,14 +12,9 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
       "predictiveBackGestureEnabled": false,
-      "package": "com.amit1312.Trackyourself"
+      "package": "com.amit1312.Trackyourself",
+      "icon": "./assets/images/outdo-icon.png"
     },
     "web": {
       "output": "server",
@@ -60,4 +55,3 @@
     }
   }
 }
-
