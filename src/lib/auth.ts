@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { Provider, Session } from '@supabase/supabase-js';
 import { makeRedirectUri } from 'expo-auth-session';
+import Constants from 'expo-constants';
 import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -9,7 +10,9 @@ WebBrowser.maybeCompleteAuthSession();
 const codeExchanges = new Map<string, Promise<Session | undefined>>();
 
 export function getAuthRedirectUri() {
-  return makeRedirectUri({ scheme: 'trackyourself', path: 'auth/callback' });
+  const configuredScheme = Constants.expoConfig?.scheme;
+  const scheme = Array.isArray(configuredScheme) ? configuredScheme[0] : configuredScheme;
+  return makeRedirectUri({ scheme, path: 'auth/callback' });
 }
 
 export function isAuthCallbackUrl(url: string) {

@@ -2,7 +2,7 @@
 -- Existing own_profile_select/own_profile_update RLS policies enforce ownership.
 begin;
 
-alter table public.users add column expo_push_token text;
+alter table public.users add column if not exists expo_push_token text;
 grant update (expo_push_token) on public.users to authenticated;
 
 commit;
