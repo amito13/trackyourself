@@ -11,6 +11,7 @@
       "icon": "./assets/images/outdo-icon.png"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -36,6 +37,14 @@
           }
         }
       ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/outdo-icon.png",
+          "color": "#208AEF",
+          "defaultChannel": "default"
+        }
+      ],
       "expo-web-browser",
       "expo-sqlite"
     ],
@@ -51,3 +60,4 @@
     }
   }
 }
+

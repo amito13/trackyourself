@@ -9,6 +9,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/state/auth-store';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { DataProvider } from '@/features/app/data-context';
 import { useTheme } from '@/constants/theme';
 import { Loading, Screen } from '@/components/ui';
@@ -20,6 +21,7 @@ export default function RootLayout() {
   const session = useAuthStore((s) => s.session);
   const loading = useAuthStore((s) => s.isLoading);
   const initialize = useAuthStore((s) => s.initialize);
+  usePushNotifications(loading ? undefined : session?.user.id);
   useEffect(() => initialize(), [initialize]);
   useEffect(() => { void hydrate(); }, [hydrate]);
   useEffect(() => {
