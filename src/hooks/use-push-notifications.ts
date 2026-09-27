@@ -20,6 +20,15 @@ export function usePushNotifications(userId: string | undefined) {
       try {
         const Notifications = await import('expo-notifications');
         if (cancelled) return;
+        // Expo hides foreground notifications unless a display handler is set.
+        Notifications.setNotificationHandler({
+          handleNotification: async () => ({
+            shouldShowBanner: true,
+            shouldShowList: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+          }),
+        });
         if (Platform.OS === 'android') {
           await Notifications.setNotificationChannelAsync('default', {
             name: 'Default',

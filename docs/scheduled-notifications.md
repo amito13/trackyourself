@@ -3,7 +3,7 @@
 The backend lives in this repository and runs on Supabase. No Express server or
 VPS is needed. The daily send time is **21:00 Asia/Kolkata (15:30 UTC)**.
 
-Each eligible user receives one preset message per daily occurrence. Messages
+Each eligible user receives one preset message per scheduled occurrence. Messages
 rotate by ID and wrap back to the first active message. The user's name replaces
 `{name}`; a missing name becomes "Athlete". Five starter messages are seeded.
 The rotation advances when a daily delivery is queued, including failed deliveries.
@@ -14,7 +14,8 @@ Prerequisites: existing schema migrations 001 and 003, working Expo credentials,
 and at least one real device token in `public.users.expo_push_token`.
 
 1. Run `src/db/migrations/004_scheduled_notifications.sql` once in the Supabase
-   SQL Editor. This is an additive migration; it creates the templates, global
+   SQL Editor, then run `src/db/migrations/005_reschedule_notifications.sql`.
+   These are additive migrations; it creates the templates, global
    schedule, private delivery log, and service-role-only claim function.
    This project uses SQL Editor migrations; do not run `supabase db push`
    expecting it to apply files from `src/db/migrations`.
@@ -56,6 +57,13 @@ Keep messages short. Deactivate used templates instead of deleting them because
 delivery history references them. If every message is inactive, no new reminders
 are queued. Changes affect future deliveries; queued payloads are snapshots.
 
+Changing the send time allows a new reminder on the same day. Each user receives
+at most one reminder per scheduled instant. Repeated cron runs, saving the same
+time, or switching back to a time already used that day do not resend. Set a future
+time for testing; a past time is eligible only within the 15-minute catch-up window.
+Apply migration 005 after 004 to enable this behavior. Older deliveries use their
+enqueue minute as an approximation because their original due time was not stored.
+
 Change the single row in `notification_schedule` to adjust `local_time` and
 `timezone` (a valid IANA name such as Asia/Kolkata). Set `enabled = false`
 to pause enqueueing and sending. An already claimed request may finish.
@@ -80,7 +88,7 @@ and `net._http_response` for the HTTP outcome too.
 
 ## Reliability and limits
 
-- Daily uniqueness plus transactional claiming prevents concurrent cron calls
+- Uniqueness per scheduled instant plus transactional claiming prevents concurrent cron calls
   from claiming the same reminder. Exactly-once device delivery is not guaranteed.
 - HTTP 429/5xx and Expo rate errors retry after 1 then 2 minutes, up to 3 attempts.
   Network timeouts and malformed success responses are marked unknown rather than

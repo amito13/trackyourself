@@ -9,7 +9,9 @@ After sign-in (including a restored session), the root layout requests notificat
 permission and saves the Expo push token to the signed-in user's profile. Android's
 `default` channel is created before requesting permission. Denied permission is
 handled without blocking the app. Registration retries on foreground and native
-token changes. Web and Expo Go skip registration.
+token changes. A notification handler requests banners, notification-list entries,
+and sound while the app is open. Device notification/channel settings still apply.
+Web and Expo Go skip registration.
 
 Use an installed development or production build configured with FCM/APNs push
 credentials and the EAS project ID. For Android, configure Firebase and the
@@ -24,6 +26,9 @@ Verify on a device:
 3. Deny permission on a fresh install and confirm sign-in still works.
 4. Restore permission in system settings and return to the app; confirm registration.
 5. Try an offline launch, reconnect, and foreground the app to retry.
+6. With the updated app running, verify an incoming push appears while the app is
+   open as well as in the background. Development builds need a JavaScript reload;
+   installed preview/production builds need an updated build containing this code.
 
 This stores the latest device token per user. Scheduled sending is implemented in
 [Scheduled push notifications](./scheduled-notifications.md); follow that guide to
