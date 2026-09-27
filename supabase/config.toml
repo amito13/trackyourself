@@ -1,0 +1,5 @@
+project_id = "track-yourself"
+
+[functions.send-reminders]
+# Only the scheduler's private bearer secret is accepted by the handler.
+verify_jwt = false

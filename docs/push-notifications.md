@@ -25,9 +25,10 @@ Verify on a device:
 4. Restore permission in system settings and return to the app; confirm registration.
 5. Try an offline launch, reconnect, and foreground the app to retry.
 
-This stores the latest device token per user. It is registration only: sending
-notifications, multi-device delivery, and removal of stored tokens on logout are
-not implemented. A sender should remove invalid tokens reported by push receipts.
+This stores the latest device token per user. Scheduled sending is implemented in
+[Scheduled push notifications](./scheduled-notifications.md); follow that guide to
+deploy it. Multi-device delivery and removal of stored tokens on logout are not
+implemented. The scheduled sender removes tokens reported as DeviceNotRegistered.
 
 References:
 - https://docs.expo.dev/push-notifications/push-notifications-setup/
