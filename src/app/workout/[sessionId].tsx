@@ -144,7 +144,7 @@ export default function WorkoutScreen() {
             >
               <Card>
                 <View style={ui.row}>
-                  <MuscleArt groups={[exercise.muscle_group]} size={60} />
+                  <MuscleArt groups={[exercise.muscle_group]} exerciseName={exercise.exercise_name} size={60} />
                   <View style={ui.flex}>
                     <Text style={ui.small}>
                       {String(index + 1).padStart(2, '0')} /{' '}

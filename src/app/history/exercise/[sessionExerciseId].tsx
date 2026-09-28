@@ -1,3 +1,4 @@
+import { MuscleArt } from '@/components/workout/muscle-art';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback } from 'react';
 import { Text, View } from 'react-native';
@@ -24,6 +25,7 @@ export default function ComparisonScreen() {
       {data && (
         <>
           <View style={ui.smallStack}>
+            <MuscleArt groups={[data.current.muscle_group]} exerciseName={data.current.exercise_name} size={112} />
             <Badge>{data.current.muscle_group.toUpperCase()}</Badge>
             <Text style={ui.title}>{data.current.exercise_name}</Text>
             <Text style={ui.muted}>See how this session compares to your last.</Text>

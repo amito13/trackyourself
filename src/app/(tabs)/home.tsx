@@ -182,7 +182,7 @@ export default function HomeScreen() {
               <View style={ui.rule} />
               {data.today.exercises.map((exercise) => (
                 <View style={ui.row} key={exercise.id}>
-                  <MuscleArt groups={[exercise.muscle_group]} size={48} />
+                  <MuscleArt groups={[exercise.muscle_group]} exerciseName={exercise.name} size={48} />
                   <Text style={[ui.body, ui.flex]}>{exercise.name}</Text>
                 </View>
               ))}

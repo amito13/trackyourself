@@ -1,3 +1,4 @@
+import { MuscleArt } from '@/components/workout/muscle-art';
 import { usePreventRemove } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -84,6 +85,7 @@ export default function ExerciseScreen() {
       {exercise && (
         <>
           <View style={ui.smallStack}>
+            <MuscleArt groups={[exercise.muscle_group]} exerciseName={exercise.exercise_name} size={112} />
             <Text style={ui.title}>{exercise.exercise_name}</Text>
             <Text style={ui.muted}>
               {comparison.previous

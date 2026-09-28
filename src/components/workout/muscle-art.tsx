@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
 import { View } from 'react-native';
+import { exerciseTargetArt } from '@/constants/exercise-targets';
 import { useTheme } from '@/constants/theme';
 
 const muscleImages: Record<string, number> = {
@@ -21,13 +22,14 @@ export function savedBodyParts(value: string): string[] {
 }
 
 /** Bundled art stays available offline and reflects the saved muscle-group snapshot. */
-export function MuscleArt({ groups, size = 64 }: { groups: string[]; size?: number }) {
+export function MuscleArt({ groups, exerciseName, size = 64 }: { groups: string[]; exerciseName?: string; size?: number }) {
   const { colors } = useTheme();
   const unique = [...new Set(groups.map((group) => group.trim().toLowerCase()))].filter(Boolean);
-  const secondary = unique[1];
+  const target = exerciseName ? exerciseTargetArt(exerciseName) : undefined;
+  const secondary = target ? undefined : unique[1];
   return (
-    <View style={{ width: size, height: size, flexShrink: 0 }} accessible accessibilityLabel={unique.length ? `${unique.join(' and ')} muscle illustration` : 'Workout illustration'}>
-      <Image source={muscleImages[unique[0]] ?? fallback} contentFit="contain"
+    <View style={{ width: size, height: size, flexShrink: 0 }} accessible accessibilityLabel={target ? `${exerciseName}: ${target.label} highlighted` : unique.length ? `${unique.join(' and ')} muscle illustration` : 'Workout illustration'}>
+      <Image source={target ?? muscleImages[unique[0]] ?? fallback} contentFit="contain"
         style={{ width: size, height: size, borderRadius: 14, backgroundColor: '#000000', borderWidth: 1, borderColor: colors.border }} />
       {secondary && <Image source={muscleImages[secondary] ?? fallback} contentFit="contain"
         style={{ position: 'absolute', right: -3, bottom: -3, width: size * 0.47, height: size * 0.47, borderRadius: 9, backgroundColor: '#000000', borderWidth: 2, borderColor: colors.surface }} />}

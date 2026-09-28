@@ -351,7 +351,7 @@ export function PlanWizard({ editing = false }: { editing?: boolean }) {
                                 },
                               ]}
                             >
-                              <MuscleArt groups={[exercise.muscle_group]} size={46} />
+                              <MuscleArt groups={[exercise.muscle_group]} exerciseName={exercise.name} size={46} />
                               <View style={ui.flex}>
                                 <Text style={[ui.body, { fontWeight: '600' }]}>
                                   {exercise.name}
