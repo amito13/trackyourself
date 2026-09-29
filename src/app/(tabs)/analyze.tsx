@@ -20,7 +20,7 @@ export default function AnalyzeScreen() {
   const stats = data && data.days === days ? buildAnalytics(data.rows, days, data.today, exerciseId) : null;
   return (
     <Screen tabs>
-      <Header title="Analyze" right={<Icon name="bar-chart-2" color={colors.accent} />} />
+      <Header title="Analyze" right={<Button title="BMI" icon="activity" secondary onPress={() => router.push('/bmi')} />} />
       <View style={ui.smallStack}>
         <Text style={ui.title}>See your progress.</Text>
         <Text style={ui.muted}>Small steps. Stronger over time.</Text>

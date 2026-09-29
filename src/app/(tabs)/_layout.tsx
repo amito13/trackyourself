@@ -1,8 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/constants/theme';
 export default function TabLayout() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 8);
   return (
     <Tabs
       initialRouteName="home"
@@ -14,13 +17,16 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
-          paddingTop: 10,
+          height: 68 + bottomPadding,
+          paddingTop: 6,
+          paddingBottom: bottomPadding,
           borderTopLeftRadius: 26,
           borderTopRightRadius: 26,
         },
         tabBarActiveBackgroundColor: colors.accentSoft,
-        tabBarItemStyle: { borderRadius: 18, marginHorizontal: 3 },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginBottom: 4 },
+        tabBarItemStyle: { borderRadius: 18, marginHorizontal: 3, paddingVertical: 4, overflow: 'hidden' },
+        tabBarLabelPosition: 'below-icon',
+        tabBarLabelStyle: { fontSize: 11, lineHeight: 16, fontWeight: '600', marginBottom: 0 },
         sceneStyle: { backgroundColor: colors.background },
       }}
     >

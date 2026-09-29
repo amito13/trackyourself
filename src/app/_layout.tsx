@@ -65,6 +65,7 @@ export default function RootLayout() {
               </Stack.Protected>
               <Stack.Protected guard={!!session}>
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="bmi" />
                 <Stack.Screen name="onboarding/index" />
                 <Stack.Screen name="plan/edit" />
                 <Stack.Screen name="workout/[sessionId]" />
