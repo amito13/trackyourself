@@ -12,6 +12,7 @@ interface AuthStore {
   initialize: () => () => void;
   handleDeepLink: (url: string) => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -55,5 +56,24 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signOut: async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+  },
+  deleteAccount: async () => {
+    const user = get().user;
+    if (!user) throw new Error('Sign in to delete your account.');
+    const { openRepositories } = await import('@/db/sqlite/open');
+    const repositories = await openRepositories(user.id);
+    const { error } = await supabase.rpc('delete_account');
+    if (error) throw error;
+    // The server has committed deletion. Always leave the deleted account even
+    // if local cleanup fails; never present it as a failed server deletion.
+    try {
+      await repositories.clearAccount();
+    } finally {
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } finally {
+        set({ session: null, user: null, isLoading: false });
+      }
+    }
   },
 }));

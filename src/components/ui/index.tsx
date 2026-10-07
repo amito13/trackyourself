@@ -78,6 +78,7 @@ export function Button({
   title,
   onPress,
   secondary,
+  destructive,
   disabled,
   loading,
   icon,
@@ -85,13 +86,14 @@ export function Button({
   title: string;
   onPress: () => void;
   secondary?: boolean;
+  destructive?: boolean;
   disabled?: boolean;
   loading?: boolean;
   icon?: IconName;
 }) {
   const { colors, mode } = useTheme();
   const styles = themedStyles[mode];
-  const color = secondary ? colors.text : colors.onAccent;
+  const color = destructive ? colors.danger : secondary ? colors.text : colors.onAccent;
   return (
     <Pressable
       accessibilityRole="button"
@@ -100,7 +102,7 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: secondary ? colors.raised : colors.accent },
+        { backgroundColor: secondary || destructive ? colors.raised : colors.accent },
         (pressed || disabled || loading) && { opacity: 0.6 },
       ]}
     >

@@ -22,6 +22,7 @@ import { errorMessage } from '@/utils/display';
 export default function ProfileScreen() {
   const { colors, ui } = useTheme();
   const signOut = useAuthStore((s) => s.signOut);
+  const deleteAccount = useAuthStore((s) => s.deleteAccount);
   const { data, error, reload } = useLocalQuery(
     useCallback(
       async (r: Repositories) => ({
@@ -32,6 +33,8 @@ export default function ProfileScreen() {
     ),
   );
   const [busy, setBusy] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [signOutError, setSignOutError] = useState<string | null>(null);
   async function logout() {
     setBusy(true);
@@ -42,6 +45,18 @@ export default function ProfileScreen() {
       setSignOutError(errorMessage(error));
     } finally {
       setBusy(false);
+    }
+  }
+  async function removeAccount() {
+    if (deleting || busy) return;
+    setDeleting(true);
+    setSignOutError(null);
+    try {
+      await deleteAccount();
+    } catch (error) {
+      setSignOutError(errorMessage(error));
+    } finally {
+      setDeleting(false);
     }
   }
   return (
@@ -119,8 +134,29 @@ export default function ProfileScreen() {
             icon="log-out"
             secondary
             loading={busy}
+            disabled={deleting}
             onPress={() => void logout()}
           />
+          <Button
+            title="Delete account"
+            icon="trash-2"
+            destructive
+            disabled={busy || deleting || confirmDelete}
+            onPress={() => setConfirmDelete(true)}
+          />
+          {confirmDelete && (
+            <Card>
+              <Text style={ui.heading}>Permanently delete your account?</Text>
+              <Text style={ui.body}>
+                Your account, workout plans, history, and saved progress will be permanently
+                deleted, including offline changes on this device. This cannot be undone.
+              </Text>
+              <Button title="Cancel" secondary disabled={deleting}
+                onPress={() => setConfirmDelete(false)} />
+              <Button title="Permanently delete account" icon="trash-2" destructive
+                loading={deleting} onPress={() => void removeAccount()} />
+            </Card>
+          )}
           <View style={[ui.smallStack, { alignItems: 'center' }]}>
             <Text style={[ui.label, { color: colors.text }]}>{brand.name} · v1.0.0</Text>
             <Text style={[ui.small, { textAlign: 'center' }]}>{brand.tagline}</Text>

@@ -89,6 +89,20 @@ async function start(repo) {
 }
 
 describe('local workout persistence', () => {
+  test('account deletion clears workouts and offline changes without affecting another account', async () => {
+    const { repo, connection } = await fixture();
+    const other = await fixture(':memory:', '44444444-4444-4444-8444-444444444444');
+    await start(repo);
+    expect((await repo.pending.list()).length).toBeGreaterThan(0);
+    await repo.clearAccount();
+    for (const table of ['users', 'workout_plans', 'workout_days',
+      'workout_day_body_parts', 'workout_day_exercises', 'workout_sessions',
+      'session_exercises', 'exercise_sets', 'exercises', 'pending_changes']) {
+      expect(connection.query(`SELECT count(*) AS count FROM ${table}`).get().count).toBe(0);
+    }
+    expect((await other.repo.profile.get()).name).toBe('Amit');
+  });
+
   test('onboarding, multiple body parts, blank defaults, partial values and timed sets', async () => {
     const { repo } = await fixture();
     const workout = await start(repo);
