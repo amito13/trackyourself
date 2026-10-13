@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { exerciseTargetArt } from '@/constants/exercise-targets';
 import { useTheme } from '@/constants/theme';
@@ -26,10 +27,13 @@ export function MuscleArt({ groups, exerciseName, size = 64 }: { groups: string[
   const { colors } = useTheme();
   const unique = [...new Set(groups.map((group) => group.trim().toLowerCase()))].filter(Boolean);
   const target = exerciseName ? exerciseTargetArt(exerciseName) : undefined;
-  const secondary = target ? undefined : unique[1];
+  const [failedUri, setFailedUri] = useState<string>();
+  const visibleTarget = target?.uri === failedUri ? undefined : target;
+  const secondary = visibleTarget ? undefined : unique[1];
   return (
-    <View style={{ width: size, height: size, flexShrink: 0 }} accessible accessibilityLabel={target ? `${exerciseName}: ${target.label} highlighted` : unique.length ? `${unique.join(' and ')} muscle illustration` : 'Workout illustration'}>
-      <Image source={target ?? muscleImages[unique[0]] ?? fallback} contentFit="contain"
+    <View style={{ width: size, height: size, flexShrink: 0 }} accessible accessibilityLabel={visibleTarget ? `${exerciseName}: ${visibleTarget.label} highlighted` : unique.length ? `${unique.join(' and ')} muscle illustration` : 'Workout illustration'}>
+      <Image source={visibleTarget ?? muscleImages[unique[0]] ?? fallback} contentFit="contain"
+        onError={() => { if (visibleTarget) setFailedUri(visibleTarget.uri); }}
         style={{ width: size, height: size, borderRadius: 14, backgroundColor: '#000000', borderWidth: 1, borderColor: colors.border }} />
       {secondary && <Image source={muscleImages[secondary] ?? fallback} contentFit="contain"
         style={{ position: 'absolute', right: -3, bottom: -3, width: size * 0.47, height: size * 0.47, borderRadius: 9, backgroundColor: '#000000', borderWidth: 2, borderColor: colors.surface }} />}

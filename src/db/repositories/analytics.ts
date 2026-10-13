@@ -30,6 +30,14 @@ export const ANALYTICS_SQL = `
 export class AnalyticsRepository {
   constructor(private local: LocalDatabase) {}
 
+  trainingDates(end: string) {
+    return this.local.read((db) => db.getAllAsync<{ workout_date: string }>(
+      `SELECT DISTINCT workout_date FROM workout_sessions
+       WHERE user_id = ? AND status = 'completed' AND workout_date <= ?
+       ORDER BY workout_date`, this.local.userId, end,
+    ));
+  }
+
   range(start: string, end: string) {
     return this.local.read((db) =>
       db.getAllAsync<AnalyticsRow>(ANALYTICS_SQL, this.local.userId, start, end),

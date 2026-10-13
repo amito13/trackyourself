@@ -24,6 +24,32 @@ export function percentChange(current: number, previous: number) {
   return previous > 0 ? ((current - previous) / previous) * 100 : null;
 }
 
+export function buildStreak(trainingDates: string[], days: Period, today: string) {
+  const dates = [...new Set(trainingDates.filter((date) => date <= today))].sort();
+  const trained = new Set(dates);
+  let best = 0;
+  let run = 0;
+  let previous: string | undefined;
+  for (const date of dates) {
+    run = previous && shift(previous, 1) === date ? run + 1 : 1;
+    best = Math.max(best, run);
+    previous = date;
+  }
+  let current = 0;
+  let cursor = trained.has(today) ? today : shift(today, -1);
+  while (trained.has(cursor)) {
+    current++;
+    cursor = shift(cursor, -1);
+  }
+  const { start } = periodBounds(days, today);
+  const activity = Array.from({ length: days }, (_, offset) => {
+    const date = shift(start, offset);
+    return { date, trained: trained.has(date) };
+  });
+  const trainingDays = activity.filter((day) => day.trained).length;
+  return { current, best, trainingDays, consistency: Math.round(trainingDays / days * 100), activity, trainedToday: trained.has(today) };
+}
+
 export function buildAnalytics(rows: AnalyticsRow[], days: Period, today: string, exerciseId?: string) {
   const bounds = periodBounds(days, today);
   const current = rows.filter((r) => r.workout_date >= bounds.start && r.workout_date <= today);

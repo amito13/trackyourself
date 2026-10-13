@@ -48,10 +48,25 @@ add(['romanian deadlift'], ['hamstrings', 'glutes'], ['lowerBack']);
 add(['calf raise'], ['calves']);
 add(['crunch', 'hanging leg raise', 'cable crunch', 'plank', 'hollow hold'], ['abs']);
 add(['bicycle crunch'], ['abs', 'obliques']);
+add(['russian twist'], ['obliques'], ['abs']);
 add(['side plank'], ['obliques']);
 
 const normalize = (name: string) => name.toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim();
 const cache = new Map<string, { uri: string; label: string }>();
+
+// The generated SVG contains ASCII only. Encode without relying on browser
+// globals: Expo Image's Android data-URL loader decodes the payload as base64.
+function svgBase64(svg: string) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let encoded = '';
+  for (let i = 0; i < svg.length; i += 3) {
+    const bits = (svg.charCodeAt(i) << 16) | ((svg.charCodeAt(i + 1) || 0) << 8) | (svg.charCodeAt(i + 2) || 0);
+    encoded += alphabet[(bits >>> 18) & 63] + alphabet[(bits >>> 12) & 63]
+      + (i + 1 < svg.length ? alphabet[(bits >>> 6) & 63] : '=')
+      + (i + 2 < svg.length ? alphabet[bits & 63] : '=');
+  }
+  return encoded;
+}
 
 /** Inline SVG is bundled with the app and requires no network or native dependency. */
 export function exerciseTargetArt(name: string) {
@@ -68,7 +83,7 @@ export function exerciseTargetArt(name: string) {
   }).join('');
   const label = target.primary.map((region) => regions[region][0]).join(' + ');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="180" viewBox="0 0 100 180"><rect width="100" height="180" rx="12" fill="#10171c"/><g fill="#242e35" stroke="#53616b" stroke-width="0.8"><ellipse cx="50" cy="18" rx="9" ry="11"/><path d="M44 28 L44 32 L30 36 Q21 38 20 50 L17 67 L10 87 Q10 93 15 91 L22 76 L29 60 L33 52 L35 76 L32 89 L34 116 L35 126 L33 150 L30 156 Q36 160 41 155 L46 132 L50 106 L54 132 L59 155 Q64 160 70 156 L67 150 L65 126 L66 116 L68 89 L65 76 L67 52 L71 60 L78 76 L85 91 Q90 93 90 87 L83 67 L80 50 Q79 38 70 36 L56 32 L56 28Z"/></g>${paths}<text x="50" y="171" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#a6b3bb">${back ? 'BACK' : 'FRONT'}</text></svg>`;
-  const result = { uri: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`, label };
+  const result = { uri: `data:image/svg+xml;base64,${svgBase64(svg)}`, label };
   cache.set(key, result);
   return result;
 }

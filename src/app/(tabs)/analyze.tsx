@@ -6,6 +6,7 @@ import { useTheme } from '@/constants/theme';
 import type { Repositories } from '@/db/repositories';
 import { buildAnalytics, dateKey, formatNumber, periodBounds, shortDate, type Period } from '@/features/analyze/model';
 import { TrendChart } from '@/features/analyze/trend-chart';
+import { StreakCard } from '@/features/analyze/streak-card';
 import { useLocalQuery } from '@/hooks/use-local-query';
 
 export default function AnalyzeScreen() {
@@ -15,7 +16,10 @@ export default function AnalyzeScreen() {
   const { data, loading, error, reload } = useLocalQuery(useCallback(async (r: Repositories) => {
     const today = dateKey(new Date());
     const bounds = periodBounds(days, today);
-    return { rows: await r.analytics.range(bounds.previousStart, today), today, days };
+    const [rows, trainingDates] = await Promise.all([
+      r.analytics.range(bounds.previousStart, today), r.analytics.trainingDates(today),
+    ]);
+    return { rows, trainingDates: trainingDates.map((day) => day.workout_date), today, days };
   }, [days]));
   const stats = data && data.days === days ? buildAnalytics(data.rows, days, data.today, exerciseId) : null;
   return (
@@ -34,6 +38,7 @@ export default function AnalyzeScreen() {
       {loading && !stats && !error && <Loading />}
       {stats && <>
         <Text style={ui.small}>{shortDate(stats.start)} – {shortDate(stats.end)} · Last {days} days, including today</Text>
+        <StreakCard trainingDates={data!.trainingDates} days={days} today={data!.today} />
         <Card>
           <View style={ui.row}>
             <Metric value={stats.sessions} label="workouts" />

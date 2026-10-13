@@ -2,9 +2,32 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Database } from 'bun:sqlite';
 import { ANALYTICS_SQL } from '../src/db/repositories/analytics.ts';
-import { buildAnalytics, periodBounds, percentChange } from '../src/features/analyze/model.ts';
+import { buildAnalytics, buildStreak, periodBounds, percentChange } from '../src/features/analyze/model.ts';
 
 const row = (date, overrides = {}) => ({ session_id: date, workout_date: date, exercise_id: 'bench', exercise_name: 'Bench press', volume: 100, heaviest: 20, completed_sets: 1, ...overrides });
+
+test('streak deduplicates visits, uses full history, and ignores future dates', () => {
+  const stats = buildStreak([
+    '2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04',
+    '2026-09-24', '2026-09-23', '2026-09-24', '2026-09-26',
+  ], 7, '2026-09-25');
+  assert.equal(stats.current, 2);
+  assert.equal(stats.best, 4);
+  assert.equal(stats.trainingDays, 2);
+  assert.equal(stats.consistency, 29);
+  assert.equal(stats.trainedToday, false);
+  assert.equal(stats.activity.length, 7);
+});
+test('streak extends today, breaks after a missed day, and handles year and leap boundaries', () => {
+  assert.equal(buildStreak(['2025-12-31', '2026-01-01'], 7, '2026-01-01').current, 2);
+  assert.equal(buildStreak(['2024-02-28', '2024-02-29', '2024-03-01'], 7, '2024-03-01').current, 3);
+  assert.equal(buildStreak(['2026-09-23'], 7, '2026-09-25').current, 0);
+  const empty = buildStreak([], 30, '2026-09-25');
+  assert.equal(empty.current, 0);
+  assert.equal(empty.best, 0);
+  assert.equal(empty.consistency, 0);
+  assert.equal(empty.activity.length, 30);
+});
 
 test('date windows include today and handle leap days with equal prior periods', () => {
   assert.deepEqual(periodBounds(7, '2024-03-03'), { start: '2024-02-26', previousStart: '2024-02-19', end: '2024-03-03' });
