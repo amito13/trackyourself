@@ -7,13 +7,16 @@ import { formatNumber, shortDate, type ChartPoint } from './model';
 const HEIGHT = 156;
 const INSET = 12;
 
-export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar' | 'line' }) {
+export function TrendChart({ points, kind, unit = 'kg' }: { points: ChartPoint[]; kind: 'bar' | 'line'; unit?: 'kg' | '%' }) {
   const { colors, ui, mode } = useTheme();
   const styles = themedStyles[mode];
   const [width, setWidth] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
+  const minimum = Math.min(0, ...points.map((p) => p.value));
   const maximum = Math.max(1, ...points.map((p) => p.value));
-  const top = Math.ceil(maximum / 4) * 4;
+  const bottom = Math.floor(minimum / 4) * 4;
+  const top = Math.max(4, Math.ceil(maximum / 4) * 4);
+  const range = top - bottom;
   const plotWidth = Math.max(0, width - INSET * 2);
   // UTC calendar-day distances avoid DST affecting the spacing of dates.
   const firstDay = Date.parse(points[0]?.date ?? '1970-01-01');
@@ -21,7 +24,7 @@ export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar'
   const x = (i: number) => kind === 'bar'
     ? INSET + plotWidth * (i + 0.5) / points.length
     : INSET + (lastDay === firstDay ? plotWidth / 2 : plotWidth * (Date.parse(points[i].date) - firstDay) / (lastDay - firstDay));
-  const y = (value: number) => INSET + HEIGHT * (1 - value / top);
+  const y = (value: number) => INSET + HEIGHT * (1 - (value - bottom) / range);
   const active = selected === null ? undefined : points[selected];
   const dateLabel = (p: ChartPoint) => p.endDate && p.endDate !== p.date
     ? `${shortDate(p.date)} – ${shortDate(p.endDate)}` : shortDate(p.date);
@@ -29,11 +32,11 @@ export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar'
   return (
     <View style={ui.smallStack}>
       <Text style={[ui.small, { minHeight: 36 }]} accessibilityLiveRegion="polite">
-        {active ? `${dateLabel(active)} · ${formatNumber(active.value)} kg` : 'Tap a bar or point to see its value · kg'}
+        {active ? `${dateLabel(active)} · ${formatNumber(active.value)} ${unit}` : `Tap a bar or point to see its value · ${unit}`}
       </Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <View style={{ justifyContent: 'space-between', paddingVertical: INSET, height: HEIGHT + INSET * 2, minWidth: 34 }}>
-          {[top, top / 2, 0].map((n) => <Text key={n} style={ui.small}>{compact(n)}</Text>)}
+          {[top, (top + bottom) / 2, bottom].map((n) => <Text key={n} style={ui.small}>{compact(n)}{unit === '%' ? '%' : ''}</Text>)}
         </View>
         <View style={ui.flex}>
           <View style={{ height: HEIGHT + INSET * 2 }} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
@@ -55,7 +58,7 @@ export function TrendChart({ points, kind }: { points: ChartPoint[]; kind: 'bar'
               <Pressable
                 key={point.date}
                 accessibilityRole="button"
-                accessibilityLabel={`${dateLabel(point)}, ${formatNumber(point.value)} kilograms`}
+                accessibilityLabel={`${dateLabel(point)}, ${formatNumber(point.value)} ${unit === '%' ? 'percent' : 'kilograms'}`}
                 accessibilityState={{ selected: selected === i }}
                 onPress={() => setSelected(i)}
                 style={kind === 'bar' ? {

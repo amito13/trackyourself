@@ -77,10 +77,33 @@ export function buildAnalytics(rows: AnalyticsRow[], days: Period, today: string
     }
   }
   const weight = Array.from(daily, ([date, value]) => ({ date, value })).sort((a, b) => a.date.localeCompare(b.date));
+  // Compare each exercise with its first logged load in the comparison window,
+  // then average those percentage changes on each training day. Percentages
+  // make loads from different exercises comparable.
+  const firstLoad = new Map<string, number>();
+  for (const row of [...previous, ...current]) {
+    if (row.exercise_id && row.heaviest !== null && row.heaviest > 0 && !firstLoad.has(row.exercise_id)) {
+      firstLoad.set(row.exercise_id, row.heaviest);
+    }
+  }
+  const dailyLoads = new Map<string, Map<string, number>>();
+  for (const row of current) {
+    if (!row.exercise_id || row.heaviest === null || row.heaviest <= 0) continue;
+    const loads = dailyLoads.get(row.workout_date) ?? new Map<string, number>();
+    loads.set(row.exercise_id, Math.max(loads.get(row.exercise_id) ?? 0, row.heaviest));
+    dailyLoads.set(row.workout_date, loads);
+  }
+  const overall: ChartPoint[] = Array.from(dailyLoads, ([date, loads]) => {
+    const changes = Array.from(loads, ([id, load]) => {
+      const baseline = firstLoad.get(id);
+      return baseline ? ((load - baseline) / baseline) * 100 : null;
+    }).filter((change): change is number => change !== null);
+    return { date, value: changes.length ? changes.reduce((sum, change) => sum + change, 0) / changes.length : 0 };
+  }).sort((a, b) => a.date.localeCompare(b.date));
   const totalVolume = current.reduce((sum, row) => sum + row.volume, 0);
   const previousVolume = previous.reduce((sum, row) => sum + row.volume, 0);
   return {
-    ...bounds, volume, weight, options, selected, totalVolume, previousVolume,
+    ...bounds, volume, weight, overall, options, selected, totalVolume, previousVolume,
     change: percentChange(totalVolume, previousVolume),
     sessions: new Set(current.map((r) => r.session_id)).size,
     sets: current.reduce((sum, row) => sum + row.completed_sets, 0),

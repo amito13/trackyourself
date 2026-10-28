@@ -51,6 +51,23 @@ export default function AnalyzeScreen() {
         ) : <>
           <Card>
             <View style={ui.between}>
+              <Text style={[ui.heading, { flexShrink: 1 }]}>Overall strength progress</Text>
+              <Icon name="trending-up" color={colors.success} />
+            </View>
+            {stats.overall.length ? <>
+              {(() => {
+                const latest = stats.overall[stats.overall.length - 1].value;
+                return <>
+                  <Text style={ui.title}>{latest > 0 ? '+' : ''}{formatNumber(latest)} <Text style={ui.muted}>%</Text></Text>
+                  <Text style={ui.small}>Average change on your latest training day</Text>
+                </>;
+              })()}
+              <TrendChart key={`overall-${days}-${stats.end}`} points={stats.overall} kind="line" unit="%" />
+              <Text style={ui.small}>Each exercise’s heaviest set is compared with its first logged load in this comparison window, then averaged. Only exercises trained that day are included.</Text>
+            </> : <Text style={ui.muted}>Log a completed weighted set to see overall strength progress.</Text>}
+          </Card>
+          <Card>
+            <View style={ui.between}>
               <Text style={ui.heading}>Volume</Text>
               <Icon name="bar-chart-2" color={colors.chart} />
             </View>
